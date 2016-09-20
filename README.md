@@ -22,7 +22,7 @@ FILENAMES OF IMAGES
 
 The usual name by convention for firmware images is
 ```
-root_uImage. 
+root_uImage 
 ```
 
 Support for files produced by the de facto official buildroot environment exist that will allow you to burn files without renaming them, provided they are named
