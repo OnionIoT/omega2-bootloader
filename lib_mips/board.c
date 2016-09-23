@@ -3167,6 +3167,12 @@ void gpio_init(void)
 
     //youlian@onion.io
     //add more here?
+    //Set Gpio pin 11 to high
+#define PIODATA_R (RALINK_PIO_BASE + 0X20)
+    val = le32_to_cpu(*(volatile u_long *)PIODATA_R);
+    val |= (1 << 11);
+    *(volatile u_long *)(PIODATA_R) = cpu_to_le32(val);
+
 }
 
 void led_on( void )
