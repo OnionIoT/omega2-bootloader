@@ -2010,13 +2010,13 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #undef TEMP_MAINTENANCE_FAILSAFE
 #ifndef TEMP_MAINTENANCE_FAILSAFE
 
-    //printf("\n");
-    //printf("\n");
-    //printf("***************************************************************************************\n");
-    //printf("*            Keep the WPS button pressed for 3 seconds to enter the menu.             *\n");
-    //printf("***************************************************************************************\n");
-    //printf("\n");
-    //printf("\n");
+    printf("\n");
+    printf("\n");
+    printf("***************************************************************************************\n");
+    printf("*                      Press the WPS button to enter the menu.                        *\n");
+    printf("***************************************************************************************\n");
+    printf("\n");
+    printf("\n");
 
     int counter = 0;
 
