@@ -2007,25 +2007,26 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	gpio_init();
 	//printf( "\nif you press the WPS button for more than 3 tyies will automatically enter the Update mode,more than 7 seconds enter gpio test mode\n");
 
+#undef TEMP_MAINTENANCE_FAILSAFE
 #ifndef TEMP_MAINTENANCE_FAILSAFE
 
-    printf("\n");
-    printf("\n");
-    printf("***************************************************************************************\n");
-    printf("*            Keep the WPS button pressed for 3 seconds to enter the menu.             *\n");
-    printf("***************************************************************************************\n");
-    printf("\n");
-    printf("\n");
+    //printf("\n");
+    //printf("\n");
+    //printf("***************************************************************************************\n");
+    //printf("*            Keep the WPS button pressed for 3 seconds to enter the menu.             *\n");
+    //printf("***************************************************************************************\n");
+    //printf("\n");
+    //printf("\n");
 
     int counter = 0;
 
 #define PROGRESS_SCALE 5
 
-    printf("***************************************************************************************\n");
-    printf("*                                       123                                           *\n");
-    printf("****************************************");
+    //printf("***************************************************************************************\n");
+    //printf("*                                       123                                           *\n");
+    //printf("****************************************");
 
-	for(i=0;i<15;i++){
+	for(i=0;i<5;i++){
 		led_on();
 		udelay(100000);
 		led_off();
@@ -2053,158 +2054,137 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	//	gpio_test();
 	//}
 
-    if( counter > 3) {
+    //printf("COUNTER: %d\n", counter);
+
+    //if( counter > 3) {
+    //
+    //
+    //    //youlian@onion.io failsafe mode?
+	//	//printf( "\nWeb update starting as default...\n");
+    //		//eth_initialize(gd->bd);
+	//	//NetLoopHttpd();
+    //
+    //    printf("\nBoot Linux from Flash.\n");
+    //
+    //    char *argv_normal[2];
+    //    sprintf(addr_str, "0x%X", CFG_KERN_ADDR);
+    //    argv_normal[1] = &addr_str[0];
+    //
+    //    do_bootm(cmdtp, 0, 2, argv_normal);
+    //
+	//} else
+    //{
+    //    printf("********************************************\n");
+    //}
 
 
-        //youlian@onion.io failsafe mode?
-		//printf( "\nWeb update starting as default...\n");
-		//eth_initialize(gd->bd);
-		//NetLoopHttpd();
-
-        printf("\nBoot Linux from Flash.\n");
-
-        char *argv_normal[2];
-        sprintf(addr_str, "0x%X", CFG_KERN_ADDR);
-        argv_normal[1] = &addr_str[0];
-
-        do_bootm(cmdtp, 0, 2, argv_normal);
-
-	} else
-    {
-        printf("********************************************\n");
-    }
 /*failsafe end!*/
 #endif
 
-    printf( "You have %d seconds left to select a menu option...\n\n", (timer1 * 8));
-
-    OperationSelect();
-
-    //default
-    BootType = 'd';
-
-	while (timer1 > 0) {
-		--timer1;
-		/* delay 100 * 10ms */
-		for (i=0; i<100; ++i) {
-
-            led_on();
-
-			if ((my_tmp = tstc()) != 0) {	/* we got a key press	*/
-				timer1 = 0;	/* no more delay	*/
-				BootType = getc();
-
-				//if ((BootType < '0' || BootType > '6') && (BootType != '7') && (BootType != '8') && (BootType != '9'))
-                //{
-                //    	BootType = '3';
-                //}
-
-				printf("\n\rOption >%c< selected.\n", BootType);
-				break;
-			}
-
-            udelay(30000);
-            led_off();
-            udelay(30000);
-
-		}
-
-		//printf ("\b\b\b%2d ", timer1);
-
-	}
-
-    if (BootType!='d')
-    {
-        printf("Booting with option %c... \n", BootType);
-    }
-    else
-    {
-        printf("Booting with default option...");
-    }
-
-
-	if(BootType == '2')
+    if (counter>0)
     {
 
-        char *argv[5];
-        int argc= 3;
+        printf("You have %d seconds left to select a menu option...\n\n", (timer1 * 8));
 
-        argv[2] = &file_name_space[0];
-        memset(file_name_space,0,ARGV_LEN);
+        OperationSelect();
 
-        argc = 2;
-        argv[1] = "start";
+        //default
+        BootType = 'd';
 
-        //printf("1 ARGV[0]=%s \n", argv[0]);
-        //printf("1 COMMAND_ARRAY: ARGV[1]=%s \n", argv[1]);
-        //printf("1 COMMAND_ARRAY: ARGV[2]=%s \n", argv[2]);
-
-        do_usb(cmdtp, 0, argc, argv);
-
-        //printf("USB_STOR_CURR_DEV: %d \n", usb_stor_curr_dev);
-
-        if( usb_stor_curr_dev >= 0) {
-
-            argc = 5;
-            argv[1] = "usb";
-            argv[2] = "0";
-
-            sprintf(addr_str, "0x%X", CFG_LOAD_ADDR);
-
-            argv[3] = &addr_str[0];
-
-            argv[4] = "root_uImage";
-            setenv("autostart", "no");
-
-            //printf("2 ARGV[0]=%s \n", argv[0]);
-
-            //printf("2 COMMAND_ARRAY: ARGV[1]=%s \n", argv[1]);
-            //printf("2 COMMAND_ARRAY: ARGV[2]=%s \n", argv[2]);
-            //printf("2 CMMAND_ARRAY: ARGV[3]=%s \n", argv[3]);
-            //printf("2 COMMAND_ARRAY: ARGV[4]=%s \n", argv[4]);
-
-            printf("%d: System Load Linux then write to Flash via USB Storage. \n", 5);
-            printf("%d: Looking for a USB Storage. \n", 5);
-            printf("%d: If suitable image is found on USB Storage writing to Flash will be attempted. \n", 5);
-            printf("%d: U-Boot will look for a FAT file system. \n", 5);
-            printf("%d: U-Boot will look for files named: \n");
-            printf("    -\"root_uImage\";\n", 5);
-            printf("    -\"lede-ramips-mt7688-Omega2-squashfs-sysupgrade.bin\". \n", 5);
-            if (!do_fat_fsload(cmdtp, 0, argc, argv)) {
-
-                NetBootFileXferSize = simple_strtoul(getenv("filesize"), NULL, 16);
-
-#if defined (CFG_ENV_IS_IN_NAND)
-                ranand_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
-
-                printf("RANAND \n");
-
-#elif defined (CFG_ENV_IS_IN_SPI)
-                raspi_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
-
-                printf("RASPI \n");
-
-#endif //CFG_ENV_IS_IN_FLASH
-
-                //youlian@onion.io stop usb?
-                argv[1] = "stop";
-                argc = 2;
-                do_usb(cmdtp, 0, argc, argv);
-
-                //reset
-                do_reset(cmdtp, 0, argc, argv);
-
-            }
-            else
+        while (timer1 > 0)
+        {
+            --timer1;
+            /* delay 100 * 10ms */
+            for (i = 0; i < 100; ++i)
             {
 
-                printf("File root_uImage not found. Trying an Omega2 specific filename...");
+                led_on();
 
-                argv[4] = "lede-ramips-mt7688-Omega2-squashfs-sysupgrade.bin";
+                if ((my_tmp = tstc()) != 0)
+                {    /* we got a key press	*/
+                    timer1 = 0;    /* no more delay	*/
+                    BootType = getc();
+
+                    //if ((BootType < '0' || BootType > '6') && (BootType != '7') && (BootType != '8') && (BootType != '9'))
+                    //{
+                    //    	BootType = '3';
+                    //}
+
+                    printf("\n\rOption >%c< selected.\n", BootType);
+                    break;
+                }
+
+                udelay(30000);
+                led_off();
+                udelay(30000);
+
+            }
+
+            //printf ("\b\b\b%2d ", timer1);
+
+        }
+
+        if (BootType != 'd')
+        {
+            printf("Booting with option %c... \n", BootType);
+        } else
+        {
+            printf("Booting with default option...");
+        }
+
+
+        if (BootType == '2')
+        {
+
+            char *argv[5];
+            int argc = 3;
+
+            argv[2] = &file_name_space[0];
+            memset(file_name_space, 0, ARGV_LEN);
+
+            argc = 2;
+            argv[1] = "start";
+
+            //printf("1 ARGV[0]=%s \n", argv[0]);
+            //printf("1 COMMAND_ARRAY: ARGV[1]=%s \n", argv[1]);
+            //printf("1 COMMAND_ARRAY: ARGV[2]=%s \n", argv[2]);
+
+            do_usb(cmdtp, 0, argc, argv);
+
+            //printf("USB_STOR_CURR_DEV: %d \n", usb_stor_curr_dev);
+
+            if (usb_stor_curr_dev >= 0)
+            {
+
+                argc = 5;
+                argv[1] = "usb";
+                argv[2] = "0";
+
+                sprintf(addr_str, "0x%X", CFG_LOAD_ADDR);
+
+                argv[3] = &addr_str[0];
+
+                argv[4] = "root_uImage";
                 setenv("autostart", "no");
 
-                if(do_fat_fsload(cmdtp, 0, argc, argv))
+                //printf("2 ARGV[0]=%s \n", argv[0]);
+
+                //printf("2 COMMAND_ARRAY: ARGV[1]=%s \n", argv[1]);
+                //printf("2 COMMAND_ARRAY: ARGV[2]=%s \n", argv[2]);
+                //printf("2 CMMAND_ARRAY: ARGV[3]=%s \n", argv[3]);
+                //printf("2 COMMAND_ARRAY: ARGV[4]=%s \n", argv[4]);
+
+                printf("%d: System Load Linux then write to Flash via USB Storage. \n", 5);
+                printf("%d: Looking for a USB Storage. \n", 5);
+                printf("%d: If suitable image is found on USB Storage writing to Flash will be attempted. \n", 5);
+                printf("%d: U-Boot will look for a FAT file system. \n", 5);
+                printf("%d: U-Boot will look for files named: \n");
+                printf("    -\"root_uImage\";\n", 5);
+                printf("    -\"lede-ramips-mt7688-Omega2-squashfs-sysupgrade.bin\". \n", 5);
+
+                if (!do_fat_fsload(cmdtp, 0, argc, argv))
                 {
+
                     NetBootFileXferSize = simple_strtoul(getenv("filesize"), NULL, 16);
 
 #if defined (CFG_ENV_IS_IN_NAND)
@@ -2226,362 +2206,418 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
                     //reset
                     do_reset(cmdtp, 0, argc, argv);
-                }
-                else
+
+                } else
                 {
-                    printf("Upgrade F/W from USB storage failed.\n");
-                    //break;
+
+                    printf("File root_uImage not found. Trying an Omega2 specific filename...");
+
+                    argv[4] = "lede-ramips-mt7688-Omega2-squashfs-sysupgrade.bin";
+                    setenv("autostart", "no");
+
+                    if (do_fat_fsload(cmdtp, 0, argc, argv))
+                    {
+                        NetBootFileXferSize = simple_strtoul(getenv("filesize"), NULL, 16);
+
+#if defined (CFG_ENV_IS_IN_NAND)
+                        ranand_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
+
+                        printf("RANAND \n");
+
+#elif defined (CFG_ENV_IS_IN_SPI)
+                        raspi_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
+
+                        printf("RASPI \n");
+
+#endif //CFG_ENV_IS_IN_FLASH
+
+                        //youlian@onion.io stop usb?
+                        argv[1] = "stop";
+                        argc = 2;
+                        do_usb(cmdtp, 0, argc, argv);
+
+                        //reset
+                        do_reset(cmdtp, 0, argc, argv);
+                    } else
+                    {
+                        printf("Upgrade F/W from USB storage failed.\n");
+                        //break;
+                    }
                 }
+
+
+            } else
+            {
+
+
+                char *argv_normal[2];
+                sprintf(addr_str, "0x%X", CFG_KERN_ADDR);
+                argv_normal[1] = &addr_str[0];
+
+                printf("No USB Storage found. F/W upgrade from USB Storage will not be attempted.\n");
+
+                printf("   \n3: System Boot system code via Flash.\n");
+
+                do_bootm(cmdtp, 0, 2, argv_normal);
             }
 
 
-        }
-        else
+        } else
         {
+            char *argv[4];
+            int argc = 3;
 
-
-            char *argv_normal[2];
-            sprintf(addr_str, "0x%X", CFG_KERN_ADDR);
-            argv_normal[1] = &addr_str[0];
-
-            printf("No USB Storage found. F/W upgrade from USB Storage will not be attempted.\n");
-
-            printf("   \n3: System Boot system code via Flash.\n");
-
-            do_bootm(cmdtp, 0, 2, argv_normal);
-        }
-
-
-	}
-	else
-    {
-		char *argv[4];
-		int argc= 3;
-
-		argv[2] = &file_name_space[0];
-		memset(file_name_space,0,ARGV_LEN);
+            argv[2] = &file_name_space[0];
+            memset(file_name_space, 0, ARGV_LEN);
 
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
-		eth_initialize(gd->bd);
+            eth_initialize(gd->bd);
 #endif
 
-		switch(BootType) {
+            switch (BootType)
+            {
 
-		case '3':
-			printf("   \n%d: System Load Linux to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
-			tftp_config(SEL_LOAD_LINUX_SDRAM, argv);           
-			argc= 3;
-			setenv("autostart", "yes");
-			do_tftpb(cmdtp, 0, argc, argv);
-			break;
+                case '3':
+                    printf("   \n%d: System Load Linux to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
+                    tftp_config(SEL_LOAD_LINUX_SDRAM, argv);
+                    argc = 3;
+                    setenv("autostart", "yes");
+                    do_tftpb(cmdtp, 0, argc, argv);
+                    break;
 
-		case '5':
-			printf("   \n%d: System Load Linux Kernel then write to Flash via TFTP. \n", SEL_LOAD_LINUX_WRITE_FLASH);
-			printf(" Warning!! Erase Linux in Flash then burn new one. Are you sure?(Y/N)\n");
-			confirm = getc();
-			if (confirm != 'y' && confirm != 'Y') {
-				printf(" Operation terminated\n");
-				break;
-			}
-			tftp_config(SEL_LOAD_LINUX_WRITE_FLASH, argv);
-			argc= 3;
-			setenv("autostart", "no");
-			do_tftpb(cmdtp, 0, argc, argv);
+                case '5':
+                    printf("   \n%d: System Load Linux Kernel then write to Flash via TFTP. \n",
+                           SEL_LOAD_LINUX_WRITE_FLASH);
+                    printf(" Warning!! Erase Linux in Flash then burn new one. Are you sure?(Y/N)\n");
+                    confirm = getc();
+                    if (confirm != 'y' && confirm != 'Y')
+                    {
+                        printf(" Operation terminated\n");
+                        break;
+                    }
+                    tftp_config(SEL_LOAD_LINUX_WRITE_FLASH, argv);
+                    argc = 3;
+                    setenv("autostart", "no");
+                    do_tftpb(cmdtp, 0, argc, argv);
 
 #if defined (CFG_ENV_IS_IN_NAND)
-			if (1) {
-				unsigned int load_address = simple_strtoul(argv[1], NULL, 16);
-				ranand_erase_write((u8 *)load_address, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
-			}
+                if (1) {
+                    unsigned int load_address = simple_strtoul(argv[1], NULL, 16);
+                    ranand_erase_write((u8 *)load_address, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
+                }
 #elif defined (CFG_ENV_IS_IN_SPI)
-			if (1) {
-				unsigned int load_address = simple_strtoul(argv[1], NULL, 16);
-				raspi_erase_write((u8 *)load_address, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
-			}
+                if (1) {
+                    unsigned int load_address = simple_strtoul(argv[1], NULL, 16);
+                    raspi_erase_write((u8 *)load_address, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
+                }
 #else //CFG_ENV_IS_IN_FLASH
 #if (defined (ON_BOARD_8M_FLASH_COMPONENT) || defined (ON_BOARD_16M_FLASH_COMPONENT)) && (defined (RT2880_ASIC_BOARD) || defined (RT2880_FPGA_BOARD) || defined (RT3052_MP1))
-			//erase linux
-			if (NetBootFileXferSize <= (0x400000 - (CFG_BOOTLOADER_SIZE + CFG_CONFIG_SIZE + CFG_FACTORY_SIZE))) {
-				e_end = CFG_KERN_ADDR + NetBootFileXferSize;
-				if (0 != get_addr_boundary(&e_end))
-					break;
-				printf("Erase linux kernel block !!\n");
-				printf("From 0x%X To 0x%X\n", CFG_KERN_ADDR, e_end);
-				flash_sect_erase(CFG_KERN_ADDR, e_end);
-			}
-			else if (NetBootFileXferSize <= CFG_KERN_SIZE) {
-				e_end = PHYS_FLASH_2 + NetBootFileXferSize - (0x400000 - (CFG_BOOTLOADER_SIZE + CFG_CONFIG_SIZE + CFG_FACTORY_SIZE));
-				if (0 != get_addr_boundary(&e_end))
-					break;
-				printf("Erase linux kernel block !!\n");
-				printf("From 0x%X To 0x%X\n", CFG_KERN_ADDR, CFG_FLASH_BASE+0x3FFFFF);
-				flash_sect_erase(CFG_KERN_ADDR, CFG_FLASH_BASE+0x3FFFFF);
-				printf("Erase linux file system block !!\n");
-				printf("From 0x%X To 0x%X\n", PHYS_FLASH_2, e_end);
-				flash_sect_erase(PHYS_FLASH_2, e_end);
-			}
+                //erase linux
+                if (NetBootFileXferSize <= (0x400000 - (CFG_BOOTLOADER_SIZE + CFG_CONFIG_SIZE + CFG_FACTORY_SIZE))) {
+                    e_end = CFG_KERN_ADDR + NetBootFileXferSize;
+                    if (0 != get_addr_boundary(&e_end))
+                        break;
+                    printf("Erase linux kernel block !!\n");
+                    printf("From 0x%X To 0x%X\n", CFG_KERN_ADDR, e_end);
+                    flash_sect_erase(CFG_KERN_ADDR, e_end);
+                }
+                else if (NetBootFileXferSize <= CFG_KERN_SIZE) {
+                    e_end = PHYS_FLASH_2 + NetBootFileXferSize - (0x400000 - (CFG_BOOTLOADER_SIZE + CFG_CONFIG_SIZE + CFG_FACTORY_SIZE));
+                    if (0 != get_addr_boundary(&e_end))
+                        break;
+                    printf("Erase linux kernel block !!\n");
+                    printf("From 0x%X To 0x%X\n", CFG_KERN_ADDR, CFG_FLASH_BASE+0x3FFFFF);
+                    flash_sect_erase(CFG_KERN_ADDR, CFG_FLASH_BASE+0x3FFFFF);
+                    printf("Erase linux file system block !!\n");
+                    printf("From 0x%X To 0x%X\n", PHYS_FLASH_2, e_end);
+                    flash_sect_erase(PHYS_FLASH_2, e_end);
+                }
 #else
-			if (NetBootFileXferSize <= (bd->bi_flashsize - (CFG_BOOTLOADER_SIZE + CFG_CONFIG_SIZE + CFG_FACTORY_SIZE))) {
-				e_end = CFG_KERN_ADDR + NetBootFileXferSize;
-				if (0 != get_addr_boundary(&e_end))
-					break;
-				printf("Erase linux kernel block !!\n");
-				printf("From 0x%X To 0x%X\n", CFG_KERN_ADDR, e_end);
-				flash_sect_erase(CFG_KERN_ADDR, e_end);
-			}
+                    if (NetBootFileXferSize <=
+                        (bd->bi_flashsize - (CFG_BOOTLOADER_SIZE + CFG_CONFIG_SIZE + CFG_FACTORY_SIZE)))
+                    {
+                        e_end = CFG_KERN_ADDR + NetBootFileXferSize;
+                        if (0 != get_addr_boundary(&e_end))
+                            break;
+                        printf("Erase linux kernel block !!\n");
+                        printf("From 0x%X To 0x%X\n", CFG_KERN_ADDR, e_end);
+                        flash_sect_erase(CFG_KERN_ADDR, e_end);
+                    }
 #endif
-			else {
-				printf("***********************************\n");
-				printf("The Linux Image size is too big !! \n");
-				printf("***********************************\n");
-				break;
-			}
+                    else
+                    {
+                        printf("***********************************\n");
+                        printf("The Linux Image size is too big !! \n");
+                        printf("***********************************\n");
+                        break;
+                    }
 
-			//cp.linux
-			argc = 4;
-			argv[0]= "cp.linux";
-			do_mem_cp(cmdtp, 0, argc, argv);
+                    //cp.linux
+                    argc = 4;
+                    argv[0] = "cp.linux";
+                    do_mem_cp(cmdtp, 0, argc, argv);
 #endif //CFG_ENV_IS_IN_FLASH
 
 #ifdef DUAL_IMAGE_SUPPORT
-			/* Don't do anything to the firmware upgraded in Uboot, since it may be used for testing */
-			setenv("Image1Stable", "1");
-			saveenv();
+                /* Don't do anything to the firmware upgraded in Uboot, since it may be used for testing */
+                setenv("Image1Stable", "1");
+                saveenv();
 #endif
 
-			//bootm bc050000
-			argc= 2;
-			sprintf(addr_str, "0x%X", CFG_KERN_ADDR);
-			argv[1] = &addr_str[0];
-			do_bootm(cmdtp, 0, argc, argv);            
-			break;
+                    //bootm bc050000
+                    argc = 2;
+                    sprintf(addr_str, "0x%X", CFG_KERN_ADDR);
+                    argv[1] = &addr_str[0];
+                    do_bootm(cmdtp, 0, argc, argv);
+                    break;
 
 #ifdef RALINK_CMDLINE
-		case '1':
-			printf("   \n%d: System Enter Boot Command Line Interface.\n", SEL_ENTER_CLI);
-			printf ("\n%s\n", version_string);
-			/* main_loop() can return to retry autoboot, if so just run it again. */
-			for (;;) {					
-				main_loop ();
-			}
-			break;
+                case '1':
+                    printf("   \n%d: System Enter Boot Command Line Interface.\n", SEL_ENTER_CLI);
+                    printf ("\n%s\n", version_string);
+                    /* main_loop() can return to retry autoboot, if so just run it again. */
+                    for (;;) {
+                        main_loop ();
+                    }
+                    break;
 
-	    /** youlian@onion.io gpio_test will be done just before normal boot always, not just as a special case
-		case 'X':
-			gpio_test();
-			break;
-		*/
-		case '0':
-			eth_initialize(gd->bd);
-			NetLoopHttpd();
-			break;
+                /** youlian@onion.io gpio_test will be done just before normal boot always, not just as a special case
+                case 'X':
+                    gpio_test();
+                    break;
+                */
+
+                case '0':
+                    eth_initialize(gd->bd);
+                    NetLoopHttpd();
+                    break;
 #endif // RALINK_CMDLINE //
 #ifdef RALINK_UPGRADE_BY_SERIAL
-		case '8':
-			printf("\n%d: System Load Boot Loader then write to Flash via Serial. \n", SEL_LOAD_BOOT_WRITE_FLASH_BY_SERIAL);
-			argc= 1;
-			setenv("autostart", "no");
-			my_tmp = do_load_serial_bin(cmdtp, 0, argc, argv);
-			NetBootFileXferSize=simple_strtoul(getenv("filesize"), NULL, 16);
+                case '8':
+                    printf("\n%d: System Load Boot Loader then write to Flash via Serial. \n", SEL_LOAD_BOOT_WRITE_FLASH_BY_SERIAL);
+                    argc= 1;
+                    setenv("autostart", "no");
+                    my_tmp = do_load_serial_bin(cmdtp, 0, argc, argv);
+                    NetBootFileXferSize=simple_strtoul(getenv("filesize"), NULL, 16);
 #if defined(SMALL_UBOOT_PARTITION)
-			if (NetBootFileXferSize > CFG_UBOOT_SIZE || my_tmp == 1) {
-				printf("Abort: Bootloader is too big or download aborted!\n");
-			}
+                    if (NetBootFileXferSize > CFG_UBOOT_SIZE || my_tmp == 1) {
+                        printf("Abort: Bootloader is too big or download aborted!\n");
+                    }
 #else
-			if (NetBootFileXferSize > CFG_BOOTLOADER_SIZE || my_tmp == 1) {
-				printf("Abort: Bootloader is too big or download aborted!\n");
-			}
+                    if (NetBootFileXferSize > CFG_BOOTLOADER_SIZE || my_tmp == 1) {
+                        printf("Abort: Bootloader is too big or download aborted!\n");
+                    }
 #endif
 #if defined (CFG_ENV_IS_IN_NAND)
-			else {
-				ranand_erase_write((char *)CFG_LOAD_ADDR, 0, NetBootFileXferSize);
-			}
+                    else {
+                        ranand_erase_write((char *)CFG_LOAD_ADDR, 0, NetBootFileXferSize);
+                    }
 #elif defined (CFG_ENV_IS_IN_SPI)
-			else {
-				raspi_erase_write((char *)CFG_LOAD_ADDR, 0, NetBootFileXferSize);
-			}
+                    else {
+                        raspi_erase_write((char *)CFG_LOAD_ADDR, 0, NetBootFileXferSize);
+                    }
 #else //CFG_ENV_IS_IN_FLASH
-			else {
-				//protect off uboot
-				flash_sect_protect(0, CFG_FLASH_BASE, CFG_FLASH_BASE+CFG_BOOTLOADER_SIZE-1);
+                    else {
+                        //protect off uboot
+                        flash_sect_protect(0, CFG_FLASH_BASE, CFG_FLASH_BASE+CFG_BOOTLOADER_SIZE-1);
 
-				//erase uboot
-				printf("\n Erase U-Boot block !!\n");
-				printf("From 0x%X To 0x%X\n", CFG_FLASH_BASE, CFG_FLASH_BASE+CFG_BOOTLOADER_SIZE-1);
-				flash_sect_erase(CFG_FLASH_BASE, CFG_FLASH_BASE+CFG_BOOTLOADER_SIZE-1);
+                        //erase uboot
+                        printf("\n Erase U-Boot block !!\n");
+                        printf("From 0x%X To 0x%X\n", CFG_FLASH_BASE, CFG_FLASH_BASE+CFG_BOOTLOADER_SIZE-1);
+                        flash_sect_erase(CFG_FLASH_BASE, CFG_FLASH_BASE+CFG_BOOTLOADER_SIZE-1);
 
-				//cp.uboot            
-				argc = 4;
-				argv[0]= "cp.uboot";
-				do_mem_cp(cmdtp, 0, argc, argv);                       
+                        //cp.uboot
+                        argc = 4;
+                        argv[0]= "cp.uboot";
+                        do_mem_cp(cmdtp, 0, argc, argv);
 
-				//protect on uboot
-				flash_sect_protect(1, CFG_FLASH_BASE, CFG_FLASH_BASE+CFG_BOOTLOADER_SIZE-1);
-			}
+                        //protect on uboot
+                        flash_sect_protect(1, CFG_FLASH_BASE, CFG_FLASH_BASE+CFG_BOOTLOADER_SIZE-1);
+                    }
 #endif //CFG_ENV_IS_IN_FLASH
 
-			//reset            
-			do_reset(cmdtp, 0, argc, argv);
-			break;
+                    //reset
+                    do_reset(cmdtp, 0, argc, argv);
+                    break;
 #endif // RALINK_UPGRADE_BY_SERIAL //
-		case '7':
-			printf("   \n%d: System Load UBoot to SDRAM via TFTP. \n", SEL_LOAD_BOOT_SDRAM);
-			tftp_config(SEL_LOAD_BOOT_SDRAM, argv);
-			argc= 3;
-			setenv("autostart", "yes");
-			do_tftpb(cmdtp, 0, argc, argv);
-			break;
+                case '7':
+                    printf("   \n%d: System Load UBoot to SDRAM via TFTP. \n", SEL_LOAD_BOOT_SDRAM);
+                    tftp_config(SEL_LOAD_BOOT_SDRAM, argv);
+                    argc = 3;
+                    setenv("autostart", "yes");
+                    do_tftpb(cmdtp, 0, argc, argv);
+                    break;
 
-		case 'SEL_LOAD_BOOT_WRITE_FLASH':
-			printf("   \n%d: System Load Boot Loader then write to Flash via TFTP. \n", SEL_LOAD_BOOT_WRITE_FLASH);
-			printf(" Warning!! Erase Boot Loader in Flash then burn new one. Are you sure?(Y/N)\n");
-			confirm = getc();
-			if (confirm != 'y' && confirm != 'Y') {
-				printf(" Operation terminated\n");
-				break;
-			}
-			tftp_config(SEL_LOAD_BOOT_WRITE_FLASH, argv);
-			argc= 3;
-			setenv("autostart", "no");
-			do_tftpb(cmdtp, 0, argc, argv);
+                case 'SEL_LOAD_BOOT_WRITE_FLASH':
+                    printf("   \n%d: System Load Boot Loader then write to Flash via TFTP. \n",
+                           SEL_LOAD_BOOT_WRITE_FLASH);
+                    printf(" Warning!! Erase Boot Loader in Flash then burn new one. Are you sure?(Y/N)\n");
+                    confirm = getc();
+                    if (confirm != 'y' && confirm != 'Y')
+                    {
+                        printf(" Operation terminated\n");
+                        break;
+                    }
+                    tftp_config(SEL_LOAD_BOOT_WRITE_FLASH, argv);
+                    argc = 3;
+                    setenv("autostart", "no");
+                    do_tftpb(cmdtp, 0, argc, argv);
 #if defined(SMALL_UBOOT_PARTITION)
-			if (NetBootFileXferSize > CFG_UBOOT_SIZE) {
-				printf("Abort: bootloader size %d too big! \n", NetBootFileXferSize);
-			}
+                if (NetBootFileXferSize > CFG_UBOOT_SIZE) {
+                    printf("Abort: bootloader size %d too big! \n", NetBootFileXferSize);
+                }
 #else
-			if (NetBootFileXferSize > CFG_BOOTLOADER_SIZE) {
-				printf("Abort: bootloader size %d too big! \n", NetBootFileXferSize);
-			}
+                    if (NetBootFileXferSize > CFG_BOOTLOADER_SIZE)
+                    {
+                        printf("Abort: bootloader size %d too big! \n", NetBootFileXferSize);
+                    }
 #endif
 #if defined (CFG_ENV_IS_IN_NAND)
-			else {
-				unsigned int load_address = simple_strtoul(argv[1], NULL, 16);
-				ranand_erase_write((char *)load_address, 0, NetBootFileXferSize);
-			}
+                        else {
+                            unsigned int load_address = simple_strtoul(argv[1], NULL, 16);
+                            ranand_erase_write((char *)load_address, 0, NetBootFileXferSize);
+                        }
 #elif defined (CFG_ENV_IS_IN_SPI)
-			else {
-				unsigned int load_address = simple_strtoul(argv[1], NULL, 16);
-				raspi_erase_write((char *)load_address, 0, NetBootFileXferSize);
-			}
+                        else {
+                            unsigned int load_address = simple_strtoul(argv[1], NULL, 16);
+                            raspi_erase_write((char *)load_address, 0, NetBootFileXferSize);
+                        }
 #else //CFG_ENV_IS_IN_FLASH
-			else {
-				//protect off uboot
-				flash_sect_protect(0, CFG_FLASH_BASE, CFG_FLASH_BASE+CFG_BOOTLOADER_SIZE-1);
+                    else
+                    {
+                        //protect off uboot
+                        flash_sect_protect(0, CFG_FLASH_BASE, CFG_FLASH_BASE + CFG_BOOTLOADER_SIZE - 1);
 
-				//erase uboot
-				printf("\n Erase U-Boot block !!\n");
-				printf("From 0x%X To 0x%X\n", CFG_FLASH_BASE, CFG_FLASH_BASE+CFG_BOOTLOADER_SIZE-1);
-				flash_sect_erase(CFG_FLASH_BASE, CFG_FLASH_BASE+CFG_BOOTLOADER_SIZE-1);
+                        //erase uboot
+                        printf("\n Erase U-Boot block !!\n");
+                        printf("From 0x%X To 0x%X\n", CFG_FLASH_BASE, CFG_FLASH_BASE + CFG_BOOTLOADER_SIZE - 1);
+                        flash_sect_erase(CFG_FLASH_BASE, CFG_FLASH_BASE + CFG_BOOTLOADER_SIZE - 1);
 
-				//cp.uboot            
-				argc = 4;
-				argv[0]= "cp.uboot";
-				do_mem_cp(cmdtp, 0, argc, argv);                       
+                        //cp.uboot
+                        argc = 4;
+                        argv[0] = "cp.uboot";
+                        do_mem_cp(cmdtp, 0, argc, argv);
 
-				//protect on uboot
-				flash_sect_protect(1, CFG_FLASH_BASE, CFG_FLASH_BASE+CFG_BOOTLOADER_SIZE-1);
-			}
+                        //protect on uboot
+                        flash_sect_protect(1, CFG_FLASH_BASE, CFG_FLASH_BASE + CFG_BOOTLOADER_SIZE - 1);
+                    }
 #endif //CFG_ENV_IS_IN_FLASH
 
-			//reset            
-			do_reset(cmdtp, 0, argc, argv);
-			break;
+                    //reset
+                    do_reset(cmdtp, 0, argc, argv);
+                    break;
 #ifdef RALINK_UPGRADE_BY_SERIAL
 #if defined (CFG_ENV_IS_IN_NAND) || defined (CFG_ENV_IS_IN_SPI)
-		case 'SEL_LOAD_LINUX_WRITE_FLASH_BY_SERIAL':
-			printf("\n%d: System Load Linux then write to Flash via Serial. \n", SEL_LOAD_LINUX_WRITE_FLASH_BY_SERIAL);
-			argc= 1;
-			setenv("autostart", "no");
-			my_tmp = do_load_serial_bin(cmdtp, 0, argc, argv);
-			NetBootFileXferSize=simple_strtoul(getenv("filesize"), NULL, 16);
+                case 'SEL_LOAD_LINUX_WRITE_FLASH_BY_SERIAL':
+                    printf("\n%d: System Load Linux then write to Flash via Serial. \n", SEL_LOAD_LINUX_WRITE_FLASH_BY_SERIAL);
+                    argc= 1;
+                    setenv("autostart", "no");
+                    my_tmp = do_load_serial_bin(cmdtp, 0, argc, argv);
+                    NetBootFileXferSize=simple_strtoul(getenv("filesize"), NULL, 16);
 
 #if defined (CFG_ENV_IS_IN_NAND)
-			ranand_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
+                    ranand_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
 #elif defined (CFG_ENV_IS_IN_SPI)
-			raspi_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
+                    raspi_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
 #endif //CFG_ENV_IS_IN_FLASH
 
-			//reset            
-			do_reset(cmdtp, 0, argc, argv);
-			break;
+                    //reset
+                    do_reset(cmdtp, 0, argc, argv);
+                    break;
 #endif
 #endif // RALINK_UPGRADE_BY_SERIAL //
 
 
 #ifdef RALINK_USB
-//#if defined (CFG_ENV_IS_IN_NAND) || defined (CFG_ENV_IS_IN_SPI)
+                //#if defined (CFG_ENV_IS_IN_NAND) || defined (CFG_ENV_IS_IN_SPI)
 #if 0
-		case '2':
-			printf("System Load Linux then write to Flash via USB Storage. \n");
-            printf("Looking for a USB Storage. \n");
-            printf("If suitable image is found on USB Storage writing to Flash will be attempted. \n");
-            printf("U-Boot will look for a FAT file system. \n");
-            printf("U-Boot will look for a file named \"root_uImage\" by convention \n");
-            //printf("\n%d: for a file named \"lede-ramips-mt7688-Omega2-squashfs-sysupgrade.bin\n", 5);
+                            case '2':
+                                printf("System Load Linux then write to Flash via USB Storage. \n");
+                                printf("Looking for a USB Storage. \n");
+                                printf("If suitable image is found on USB Storage writing to Flash will be attempted. \n");
+                                printf("U-Boot will look for a FAT file system. \n");
+                                printf("U-Boot will look for a file named \"root_uImage\" by convention \n");
+                                //printf("\n%d: for a file named \"lede-ramips-mt7688-Omega2-squashfs-sysupgrade.bin\n", 5);
 
-			argc = 2;
-			argv[1] = "start";
+                                argc = 2;
+                                argv[1] = "start";
 
-			do_usb(cmdtp, 0, argc, argv);
+                                do_usb(cmdtp, 0, argc, argv);
 
-			if( usb_stor_curr_dev < 0){
-				printf("No USB Storage found. No F/W upgrade from USB Storage will be attempted.\n");
-				break;
-			}
+                                if( usb_stor_curr_dev < 0){
+                                    printf("No USB Storage found. No F/W upgrade from USB Storage will be attempted.\n");
+                                    break;
+                                }
 
-			argc= 5;
-			argv[1] = "usb";
-			argv[2] = "0";
+                                argc= 5;
+                                argv[1] = "usb";
+                                argv[2] = "0";
 
-			sprintf(addr_str, "0x%X", CFG_LOAD_ADDR);
+                                sprintf(addr_str, "0x%X", CFG_LOAD_ADDR);
 
-			argv[3] = &addr_str[0];
+                                argv[3] = &addr_str[0];
 
 
-			argv[4] = "root_uImage";
-			setenv("autostart", "no");
+                                argv[4] = "root_uImage";
+                                setenv("autostart", "no");
 
-			if(do_fat_fsload(cmdtp, 0, argc, argv)){
-				printf("Upgrade F/W from USB storage failed.\n");
-				break;
-			}
+                                if(do_fat_fsload(cmdtp, 0, argc, argv)){
+                                    printf("Upgrade F/W from USB storage failed.\n");
+                                    break;
+                                }
 
-            /**
-			argv[4] = "lede-ramips-mt7688-Omega2-squashfs-sysupgrade.bin";
-			setenv("autostart", "no");
+                                /**
+                                argv[4] = "lede-ramips-mt7688-Omega2-squashfs-sysupgrade.bin";
+                                setenv("autostart", "no");
 
-			if(do_fat_fsload(cmdtp, 0, argc, argv)){
-				printf("Upgrade F/W from USB storage failed.\n");
-				break;
-			}
-            */
+                                if(do_fat_fsload(cmdtp, 0, argc, argv)){
+                                    printf("Upgrade F/W from USB storage failed.\n");
+                                    break;
+                                }
+                                */
 
-			NetBootFileXferSize=simple_strtoul(getenv("filesize"), NULL, 16);
+                                NetBootFileXferSize=simple_strtoul(getenv("filesize"), NULL, 16);
 #if defined (CFG_ENV_IS_IN_NAND)
-			ranand_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
+                                ranand_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
 #elif defined (CFG_ENV_IS_IN_SPI)
-			raspi_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
+                                raspi_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
 #endif //CFG_ENV_IS_IN_FLASH
 
-			//reset            
-			do_reset(cmdtp, 0, argc, argv);
-			break;
+                                //reset
+                                do_reset(cmdtp, 0, argc, argv);
+                                break;
 #endif
 #endif // RALINK_UPGRADE_BY_USB //
 
-		default:
+                default:
 
-                printf("\nBoot Linux fromFlash.\n");
+                    printf("\nBoot Linux from Flash.\n");
 
-			    do_bootm(cmdtp, 0, 1, argv);
-			    break;
+                    char *argv_normal[2];
+                    sprintf(addr_str, "0x%X", CFG_KERN_ADDR);
+                    argv_normal[1] = &addr_str[0];
 
-		} /* end of switch */   
+                    do_bootm(cmdtp, 0, 2, argv_normal);
 
-		do_reset(cmdtp, 0, argc, argv);
+                    break;
 
-	} /* end of else */
+            } /* end of switch */
 
+            do_reset(cmdtp, 0, argc, argv);
+
+        } /* end of else */
+
+    }
+    else
+    {
+        printf("\nBoot Linux from Flash NO RESET PRESSED.\n");
+
+        char *argv_normal[2];
+        sprintf(addr_str, "0x%X", CFG_KERN_ADDR);
+        argv_normal[1] = &addr_str[0];
+
+        do_bootm(cmdtp, 0, 2, argv_normal);
+    }
 	/* NOTREACHED - no way out of command loop except booting */
 }
 
@@ -3168,10 +3204,17 @@ void gpio_init(void)
     //youlian@onion.io
     //add more here?
     //Set Gpio pin 11 to high
+
+    val = RALINK_REG(RT2880_REG_PIOSET);
+    val |= (1 << 11);
+    RALINK_REG(RT2880_REG_PIOSET) = val;
+
+/**  does not seem to work hmmm
 #define PIODATA_R (RALINK_PIO_BASE + 0X20)
     val = le32_to_cpu(*(volatile u_long *)PIODATA_R);
     val |= (1 << 11);
     *(volatile u_long *)(PIODATA_R) = cpu_to_le32(val);
+*/
 
 }
 
@@ -3191,15 +3234,27 @@ int detect_wps( void )
 {
 	u32 val;
 	val=RALINK_REG(0xb0000624);//624
-	if(val&1<<6)
+
+    //youlian original
+	//if(val&1<<6)
+    //{
+	//	return 0;
+	//}
+	//else
+    //{
+	//	//printf("[WPS]");
+	//	return 1;
+	//}
+
+    if(val&1<<6)
     {
-		return 0;
-	}
-	else
+    	return 1;
+    }
+    else
     {
-		//printf("[WPS]");
-		return 1;
-	}
+        return 0;
+    }
+
 }
 void gpio_test( void )
 {
