@@ -11,6 +11,13 @@ Understand the risks of rendering your device not operational.
 ==================================================================================================
 
 
+NOTE THAT YOU NEED A WIRE
+
+You need a wire connecting 3.3V pin and 2.5V pin to make the following code getting the WPS button state to work
+```
+val=RALINK_REG(0xb0000624);
+```
+
 NOTE ON UBOOT PARTITION SIZE
 
 In case you Omega2 already has a loader installed that supports only upto 128K in web update please switch off some functionality in config.mk that takes up lots of space, for example RALINK_EHCI and/or RALINK_OHCI (except the web update functionality obviously) in order to keep the size withing the limits, compile the limited functionality executable and burn that. 
