@@ -912,38 +912,38 @@ void OperationSelect(void)
 
     //printf("   %d: Enter led testing mode.\n", SEL_TEST_LEDS);
 
-    printf("   (Default): Boot system code via Flash (default).\n");
-    printf("   (   %d   ): Enter Web failsafe mode.\n", SEL_WEB_MODE);
+    printf("   (Default): Boot Omega.\n");
+    printf("   (   %d   ): Start Ethernet recovery mode.\n", SEL_WEB_MODE);
 
 
 #ifdef RALINK_CMDLINE
-    printf("   (   %d   ): Enter boot command line interface.\n", SEL_ENTER_CLI);
+    printf("   (   %d   ): Start command line mode.\n", SEL_ENTER_CLI);
 #endif // RALINK_CMDLINE //
 
-    printf("   (   %d   ): Load system code code from USB. \n", SEL_LOAD_LINUX_USB);
+    printf("   (   %d   ): Flash firmware from USB storage. \n", SEL_LOAD_LINUX_USB);
 
     //youlian@onion.io below line omitted from received src, so it remains omitted for now
 #ifndef TEMP_MAINTENANCE
-    printf("   (   %d   ): Load system code to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
+    printf("   (   %d   ): Flash firmware to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
 #endif
 
 #ifdef RALINK_UPGRADE_BY_SERIAL
-    printf("   (   %d   ): Load system code then write to Flash via Serial. \n", SEL_LOAD_LINUX_WRITE_FLASH_BY_SERIAL);
+    printf("   (   %d   ): Flash firmware via Serial. \n", SEL_LOAD_LINUX_WRITE_FLASH_BY_SERIAL);
 #endif // RALINK_UPGRADE_BY_SERIAL //
 
-    printf("   (   %d   ): Load system code then write to Flash via TFTP. \n", SEL_LOAD_LINUX_WRITE_FLASH);
+    printf("   (   %d   ): Flash firmware via TFTP. \n", SEL_LOAD_LINUX_WRITE_FLASH);
 
 #ifndef TEMP_MAINTENANCE
-    printf("   (   %d   ): Load Boot Loader code from USB. \n", SEL_LOAD_BOOT_USB);
+    printf("   (   %d   ): Flash boot loader code from USB. \n", SEL_LOAD_BOOT_USB);
 #endif
 
-    printf("   (   %d   ): Load Boot Loader code then write to SDRAM via TFTP. \n", SEL_LOAD_BOOT_SDRAM);
+    printf("   (   %d   ): Flash boot loader code then write to SDRAM via TFTP. \n", SEL_LOAD_BOOT_SDRAM);
 
 #ifdef RALINK_UPGRADE_BY_SERIAL
-	printf("   (   %d   ): Load Boot Loader code then write to Flash via Serial. \n", SEL_LOAD_BOOT_WRITE_FLASH_BY_SERIAL);
+	printf("   (   %d   ): Flash boot loader via Serial. \n", SEL_LOAD_BOOT_WRITE_FLASH_BY_SERIAL);
 #endif // RALINK_UPGRADE_BY_SERIAL //
 
-	printf("   (   %d   ): Load Boot Loader code then write to Flash via TFTP. \n", SEL_LOAD_BOOT_WRITE_FLASH);
+	printf("   (   %d   ): Flash boot loader via TFTP. \n", SEL_LOAD_BOOT_WRITE_FLASH);
 
 }
 
@@ -2054,7 +2054,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	//	gpio_test();
 	//}
 
-    //printf("COUNTER: %d\n", counter);
+    printf("COUNTER: %d\n", counter);
 
     //if( counter > 3) {
     //
@@ -2084,7 +2084,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
     if (counter>0)
     {
 
-        printf("You have %d seconds left to select a menu option...\n\n", (timer1 * 8));
+        printf("You have %d seconds left to select a menu option...\n\n", timer1 * 8);
 
         OperationSelect();
 
@@ -2179,8 +2179,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
                 printf("%d: If suitable image is found on USB Storage writing to Flash will be attempted. \n", 5);
                 printf("%d: U-Boot will look for a FAT file system. \n", 5);
                 printf("%d: U-Boot will look for files named: \n");
-                printf("    -\"root_uImage\";\n", 5);
-                printf("    -\"lede-ramips-mt7688-Omega2-squashfs-sysupgrade.bin\". \n", 5);
+                printf("    -\"Omega2.bin\";\n", 5);
+                printf("    -\"Omega2P.bin\". \n", 5);
 
                 if (!do_fat_fsload(cmdtp, 0, argc, argv))
                 {
@@ -2210,9 +2210,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
                 } else
                 {
 
-                    printf("File root_uImage not found. Trying an Omega2 specific filename...");
+                    printf("File Omega2.bin not found. Trying an Omega2P.bin...");
 
-                    argv[4] = "lede-ramips-mt7688-Omega2-squashfs-sysupgrade.bin";
+                    argv[4] = "Omega2P.bin";
                     setenv("autostart", "no");
 
                     if (do_fat_fsload(cmdtp, 0, argc, argv))
@@ -3199,22 +3199,22 @@ void gpio_init(void)
 	//gpio38 input gpio_ctrl_1 bit5=0
 	val=RALINK_REG(RT2880_REG_PIODIR+0x04);	
 	val&=~1<<6;
+
 	RALINK_REG(RT2880_REG_PIODIR+0x04)=val;
 
     //youlian@onion.io
     //add more here?
-    //Set Gpio pin 11 to high
+    //possibly something to make the wire connecting 3.3V and 2.5V obsolete perhaps?
 
-    val = RALINK_REG(RT2880_REG_PIOSET);
-    val |= (1 << 11);
-    RALINK_REG(RT2880_REG_PIOSET) = val;
+    val=RALINK_REG(RT2880_REG_PIODIR);
+    val|=1<<11;
+    RALINK_REG(RT2880_REG_PIODIR) = val;
 
-/**  does not seem to work hmmm
-#define PIODATA_R (RALINK_PIO_BASE + 0X20)
-    val = le32_to_cpu(*(volatile u_long *)PIODATA_R);
-    val |= (1 << 11);
-    *(volatile u_long *)(PIODATA_R) = cpu_to_le32(val);
-*/
+    val=RALINK_REG(RT2880_REG_PIODATA);
+    val|=1<<11;
+    RALINK_REG(RT2880_REG_PIODATA) = val;
+
+
 
 }
 
