@@ -13,7 +13,7 @@ Understand the risks of rendering your device not operational.
 
 NOTE THAT YOU NEED A WIRE
 
-You need a wire connecting 3.3V pin and 2.5V pin to make the following code getting the WPS button state to work
+You need a wire connecting 3.3V pin and 2.5V pin to make the following code getting the WPS button state work
 ```
 val=RALINK_REG(0xb0000624);
 ```
