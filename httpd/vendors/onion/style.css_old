@@ -12,7 +12,7 @@
     width: 64px;
     border-radius: 25%;
     background-color: #81476d;
-    background-image: url("o.gif");
+    //background-image: url("o.gif");
     text-align: center;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
