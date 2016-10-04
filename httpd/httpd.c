@@ -25,7 +25,7 @@
 #define is_digit(c)				((c) >= '0' && (c) <= '9')
 
 // debug
-//#define DEBUG_UIP
+#define DEBUG_UIP
 
 // html files
 extern const struct fsdata_file file_index_html;
