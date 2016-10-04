@@ -901,39 +901,45 @@ void OperationSelect(void)
 	printf("\nPlease select option: \n");
 
     //printf("   %d: Enter led testing mode.\n", SEL_TEST_LEDS);
+    // zh@onion.io
+    // update boot menu format
+    printf("   [ b ]: Boot Omega2.\n");
 
-    printf("   (Default): Boot Omega.\n");
-    printf("   (   %d   ): Start Ethernet recovery mode.\n", SEL_WEB_MODE);
 
+    // zh@onion.io
+    // TODO: define config switch for Ethernt recoverty
+// #ifdef RALINK_CMDLINE
+    printf("   [ %d ]: Start Ethernet recovery mode.\n", SEL_WEB_MODE);
+// #endif // RALINK_CMDLINE //
 
 #ifdef RALINK_CMDLINE
-    printf("   (   %d   ): Start command line mode.\n", SEL_ENTER_CLI);
+    printf("   [ %d ]: Start command line mode.\n", SEL_ENTER_CLI);
 #endif // RALINK_CMDLINE //
 
-    printf("   (   %d   ): Flash firmware from USB storage. \n", SEL_LOAD_LINUX_USB);
+    printf("   [ %d ]: Flash firmware from USB storage. \n", SEL_LOAD_LINUX_USB);
 
     //youlian@onion.io below line omitted from received src, so it remains omitted for now
 #ifndef TEMP_MAINTENANCE
-    printf("   (   %d   ): Flash firmware to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
+    printf("   [ %d ]: Flash firmware to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
 #endif
 
 #ifdef RALINK_UPGRADE_BY_SERIAL
-    printf("   (   %d   ): Flash firmware via Serial. \n", SEL_LOAD_LINUX_WRITE_FLASH_BY_SERIAL);
+    printf("   [ %d ]: Flash firmware via Serial. \n", SEL_LOAD_LINUX_WRITE_FLASH_BY_SERIAL);
 #endif // RALINK_UPGRADE_BY_SERIAL //
 
-    printf("   (   %d   ): Flash firmware via TFTP. \n", SEL_LOAD_LINUX_WRITE_FLASH);
+    printf("   [ %d ]: Flash firmware via TFTP. \n", SEL_LOAD_LINUX_WRITE_FLASH);
 
 #ifndef TEMP_MAINTENANCE
-    printf("   (   %d   ): Flash boot loader code from USB. \n", SEL_LOAD_BOOT_USB);
+    printf("   [ %d ]: Flash boot loader code from USB. \n", SEL_LOAD_BOOT_USB);
 #endif
 
-    printf("   (   %d   ): Flash boot loader code then write to SDRAM via TFTP. \n", SEL_LOAD_BOOT_SDRAM);
+    printf("   [ %d ]: Flash boot loader code then write to SDRAM via TFTP. \n", SEL_LOAD_BOOT_SDRAM);
 
 #ifdef RALINK_UPGRADE_BY_SERIAL
-	printf("   (   %d   ): Flash boot loader via Serial. \n", SEL_LOAD_BOOT_WRITE_FLASH_BY_SERIAL);
+	printf("   [ %d ]: Flash boot loader via Serial. \n", SEL_LOAD_BOOT_WRITE_FLASH_BY_SERIAL);
 #endif // RALINK_UPGRADE_BY_SERIAL //
 
-	printf("   (   %d   ): Flash boot loader via TFTP. \n", SEL_LOAD_BOOT_WRITE_FLASH);
+	printf("   [ %d ]: Flash boot loader via TFTP. \n", SEL_LOAD_BOOT_WRITE_FLASH);
 
 }
 
@@ -2015,6 +2021,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
 /*failsafe end!*/
 // #endif
 
+    // zh@onion.io
+    // enter boot menu only when reset button is pressed
     if (detect_rst())
     {
 
@@ -2023,8 +2031,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
         OperationSelect();
 
         //default
-        BootType = 'd';
+        BootType = 'b';
 
+        // zh@onion.io
+        // wait for user input
         while (timer1 > 0)
         {
             --timer1;
@@ -2039,12 +2049,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
                     timer1 = 0;    /* no more delay	*/
                     BootType = getc();
 
-                    //if ((BootType < '0' || BootType > '6') && (BootType != '7') && (BootType != '8') && (BootType != '9'))
-                    //{
-                    //    	BootType = '3';
-                    //}
-
-                    printf("\n\rOption >%c< selected.\n", BootType);
+                    printf("\n\rOption [%c] selected.\n", BootType);
                     break;
                 }
 
@@ -2053,22 +2058,23 @@ void board_init_r (gd_t *id, ulong dest_addr)
                 udelay(30000);
 
             }
-
-            //printf ("\b\b\b%2d ", timer1);
-
         }
 
-        if (BootType != 'd')
-        {
-            printf("Booting with option %c... \n", BootType);
-        } else
-        {
-            printf("Booting with default option...");
-        }
+        // if (BootType != 'b')
+        // {
+        //     printf("Booting with option %c... \n", BootType);
+        // } else
+        // {
+        //     printf("Booting with default option...");
+        // }
 
-
+        // zh@onion.io
+        // TODO: put USB boot code in separate function
+        /*
         if (BootType == '2')
         {
+
+
 
             char *argv[5];
             int argc = 3;
@@ -2194,23 +2200,33 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
                 do_bootm(cmdtp, 0, 2, argv_normal);
             }
+            */
 
-
-        } else
-        {
+        // } else
+        // {
             char *argv[4];
             int argc = 3;
 
             argv[2] = &file_name_space[0];
             memset(file_name_space, 0, ARGV_LEN);
 
-#if (CONFIG_COMMANDS & CFG_CMD_NET)
-            eth_initialize(gd->bd);
-#endif
+// #if (CONFIG_COMMANDS & CFG_CMD_NET)
+//             eth_initialize(gd->bd);
+// #endif
 
             switch (BootType)
             {
-
+                // zh@onion.io
+                // added ethernet bootsafe as option 0
+                // TODO: add #ifdef macro
+                case '0':
+                    eth_initialize(gd->bd);
+                    NetLoopHttpd();
+                    break;
+                case '2':
+                    // zh@onion.io
+                    printf("TODO: add USB boot code here")
+                    break;
                 case '3':
                     printf("   \n%d: System Load Linux to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
                     tftp_config(SEL_LOAD_LINUX_SDRAM, argv);
@@ -2315,16 +2331,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
                     }
                     break;
 
-                /** youlian@onion.io gpio_test will be done just before normal boot always, not just as a special case
-                case 'X':
-                    gpio_test();
-                    break;
-                */
-
-                case '0':
-                    eth_initialize(gd->bd);
-                    NetLoopHttpd();
-                    break;
 #endif // RALINK_CMDLINE //
 #ifdef RALINK_UPGRADE_BY_SERIAL
                 case '8':
@@ -2538,8 +2544,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
             } /* end of switch */
 
             do_reset(cmdtp, 0, argc, argv);
-
-        } /* end of else */
 
     }
     else
