@@ -137,7 +137,7 @@ extern unsigned int  CFG_BLOCKSIZE;
 #elif defined (MT7621_FPGA_BOARD) || defined (MT7621_ASIC_BOARD)
 #define	CFG_PROMPT		"MT7621 # "
 #elif defined (MT7628_FPGA_BOARD) || defined (MT7628_ASIC_BOARD)
-#define	CFG_PROMPT		"MT7628 # "
+#define	CFG_PROMPT		"Omega2 # "
 #else
 #define	CFG_PROMPT		"RTxxxx # "
 #endif
