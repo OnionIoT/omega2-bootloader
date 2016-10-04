@@ -134,8 +134,6 @@ void led_off(void);
 int detect_rst(void);
 void gpio_test( void );
 
-// zh@onion.io added USB flash function
-void flash_via_usb( void );
 
 
 
@@ -2075,10 +2073,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
                 eth_initialize(gd->bd);
                 NetLoopHttpd();
                 break;
-            // case '2':
-            //     // zh@onion.io
-            //     flash_via_usb();
-            //     break;
+
             case '3':
                 printf("   \n%d: System Load Linux to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
                 tftp_config(SEL_LOAD_LINUX_SDRAM, argv);
@@ -2321,14 +2316,14 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 
 #ifdef RALINK_USB
-    #if defined (CFG_ENV_IS_IN_NAND) || defined (CFG_ENV_IS_IN_SPI)
+#if defined (CFG_ENV_IS_IN_NAND) || defined (CFG_ENV_IS_IN_SPI)
 // #if 0
                         case '2':
                             printf("System Load Linux then write to Flash via USB Storage. \n");
                             printf("Looking for a USB Storage. \n");
                             printf("If suitable image is found on USB Storage writing to Flash will be attempted. \n");
                             printf("U-Boot will look for a FAT file system. \n");
-                            printf("U-Boot will look for a file named \"root_uImage\" by convention \n");
+                            // printf("U-Boot will look for a file named \"root_uImage\" by convention \n");
                             //printf("\n%d: for a file named \"lede-ramips-mt7688-Omega2-squashfs-sysupgrade.bin\n", 5);
 
                             argc = 2;
@@ -2350,23 +2345,14 @@ void board_init_r (gd_t *id, ulong dest_addr)
                             argv[3] = &addr_str[0];
 
 
-                            argv[4] = "root_uImage";
+                            argv[4] = "omega2.bin";
                             setenv("autostart", "no");
 
+                            printf("This will take several minuts please do not power off your Omega2 \n");
                             if(do_fat_fsload(cmdtp, 0, argc, argv)){
                                 printf("Upgrade F/W from USB storage failed.\n");
                                 break;
                             }
-
-                            /**
-                            argv[4] = "lede-ramips-mt7688-Omega2-squashfs-sysupgrade.bin";
-                            setenv("autostart", "no");
-
-                            if(do_fat_fsload(cmdtp, 0, argc, argv)){
-                                printf("Upgrade F/W from USB storage failed.\n");
-                                break;
-                            }
-                            */
 
                             NetBootFileXferSize=simple_strtoul(getenv("filesize"), NULL, 16);
 #if defined (CFG_ENV_IS_IN_NAND)
@@ -2378,7 +2364,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
                             //reset
                             do_reset(cmdtp, 0, argc, argv);
                             break;
-// #endif
+#endif
 #endif // RALINK_UPGRADE_BY_USB //
 
             default:
@@ -3097,133 +3083,4 @@ void gpio_test( void )
 	RALINK_REG(0xb0000604)=gpio_ctrl1;
 	RALINK_REG(0xb0000620)=gpio_dat0;
 	RALINK_REG(0xb0000624)=gpio_dat1;
-}
-
-void flash_via_usb (void){
-/*
-  char *argv[5];
-  int argc = 3;
-
-  argv[2] = &file_name_space[0];
-  memset(file_name_space, 0, ARGV_LEN);
-
-  argc = 2;
-  argv[1] = "start";
-
-  //printf("1 ARGV[0]=%s \n", argv[0]);
-  //printf("1 COMMAND_ARRAY: ARGV[1]=%s \n", argv[1]);
-  //printf("1 COMMAND_ARRAY: ARGV[2]=%s \n", argv[2]);
-
-  do_usb(cmdtp, 0, argc, argv);
-
-  //printf("USB_STOR_CURR_DEV: %d \n", usb_stor_curr_dev);
-
-  if (usb_stor_curr_dev >= 0)
-  {
-
-      argc = 5;
-      argv[1] = "usb";
-      argv[2] = "0";
-
-      sprintf(addr_str, "0x%X", CFG_LOAD_ADDR);
-
-      argv[3] = &addr_str[0];
-
-      argv[4] = "root_uImage";
-      setenv("autostart", "no");
-
-      //printf("2 ARGV[0]=%s \n", argv[0]);
-
-      //printf("2 COMMAND_ARRAY: ARGV[1]=%s \n", argv[1]);
-      //printf("2 COMMAND_ARRAY: ARGV[2]=%s \n", argv[2]);
-      //printf("2 CMMAND_ARRAY: ARGV[3]=%s \n", argv[3]);
-      //printf("2 COMMAND_ARRAY: ARGV[4]=%s \n", argv[4]);
-
-      printf("%d: System Load Linux then write to Flash via USB Storage. \n", 5);
-      printf("%d: Looking for a USB Storage. \n", 5);
-      printf("%d: If suitable image is found on USB Storage writing to Flash will be attempted. \n", 5);
-      printf("%d: U-Boot will look for a FAT file system. \n", 5);
-      printf("%d: U-Boot will look for files named: \n");
-      printf("    -\"Omega2.bin\";\n", 5);
-      printf("    -\"Omega2P.bin\". \n", 5);
-
-      if (!do_fat_fsload(cmdtp, 0, argc, argv))
-      {
-
-          NetBootFileXferSize = simple_strtoul(getenv("filesize"), NULL, 16);
-
-  #if defined (CFG_ENV_IS_IN_NAND)
-          ranand_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
-
-          printf("RANAND \n");
-
-  #elif defined (CFG_ENV_IS_IN_SPI)
-          raspi_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
-
-          printf("RASPI \n");
-
-  #endif //CFG_ENV_IS_IN_FLASH
-
-          //youlian@onion.io stop usb?
-          argv[1] = "stop";
-          argc = 2;
-          do_usb(cmdtp, 0, argc, argv);
-
-          //reset
-          do_reset(cmdtp, 0, argc, argv);
-
-      } else
-      {
-
-          printf("File Omega2.bin not found. Trying an Omega2P.bin...");
-
-          argv[4] = "Omega2P.bin";
-          setenv("autostart", "no");
-
-          if (do_fat_fsload(cmdtp, 0, argc, argv))
-          {
-              NetBootFileXferSize = simple_strtoul(getenv("filesize"), NULL, 16);
-
-  #if defined (CFG_ENV_IS_IN_NAND)
-              ranand_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
-
-              printf("RANAND \n");
-
-  #elif defined (CFG_ENV_IS_IN_SPI)
-              raspi_erase_write((char *)CFG_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, NetBootFileXferSize);
-
-              printf("RASPI \n");
-
-  #endif //CFG_ENV_IS_IN_FLASH
-
-              //youlian@onion.io stop usb?
-              argv[1] = "stop";
-              argc = 2;
-              do_usb(cmdtp, 0, argc, argv);
-
-              //reset
-              do_reset(cmdtp, 0, argc, argv);
-          } else
-          {
-              printf("Upgrade F/W from USB storage failed.\n");
-              //break;
-          }
-      }
-
-
-  } else
-  {
-
-
-      char *argv_normal[2];
-      sprintf(addr_str, "0x%X", CFG_KERN_ADDR);
-      argv_normal[1] = &addr_str[0];
-
-      printf("No USB Storage found. F/W upgrade from USB Storage will not be attempted.\n");
-
-      printf("   \n3: System Boot system code via Flash.\n");
-
-      do_bootm(cmdtp, 0, 2, argv_normal);
-  }
-*/
 }
