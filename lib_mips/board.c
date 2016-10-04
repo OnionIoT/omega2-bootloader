@@ -2321,7 +2321,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 
 #ifdef RALINK_USB
-            //#if defined (CFG_ENV_IS_IN_NAND) || defined (CFG_ENV_IS_IN_SPI)
+    #if defined (CFG_ENV_IS_IN_NAND) || defined (CFG_ENV_IS_IN_SPI)
 // #if 0
                         case '2':
                             printf("System Load Linux then write to Flash via USB Storage. \n");
