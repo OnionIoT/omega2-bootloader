@@ -2225,7 +2225,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
                     break;
                 case '2':
                     // zh@onion.io
-                    printf("TODO: add USB boot code here")
+                    printf("TODO: add USB boot code here");
                     break;
                 case '3':
                     printf("   \n%d: System Load Linux to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
