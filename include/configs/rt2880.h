@@ -28,9 +28,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifndef __ASSEMBLY__ 
+#ifndef __ASSEMBLY__
 #if defined(CFG_ENV_IS_IN_NAND) /* Environment is in NAND Flash */
-#if defined(MTK_NAND) 
+#if defined(MTK_NAND)
 extern unsigned int  CFG_BLOCKSIZE;
 #else
 #include "../../drivers/ralink_nand.h"
@@ -63,15 +63,15 @@ extern unsigned int  CFG_BLOCKSIZE;
 #ifdef RT2880_ASIC_BOARD
 #define CPU_CLOCK_RATE	266666666 /* default: 150 MHz clock for the MIPS core */
 #elif defined (RT3052_ASIC_BOARD)
-#define CPU_CLOCK_RATE	384000000 
+#define CPU_CLOCK_RATE	384000000
 #elif defined (RT3352_ASIC_BOARD)
-#define CPU_CLOCK_RATE	400000000 
+#define CPU_CLOCK_RATE	400000000
 #elif defined (RT6855_ASIC_BOARD) || defined (RT6855A_ASIC_BOARD)
-#define CPU_CLOCK_RATE	500000000 
+#define CPU_CLOCK_RATE	500000000
 #elif defined (MT7620_ASIC_BOARD)
-#define CPU_CLOCK_RATE	600000000 
+#define CPU_CLOCK_RATE	600000000
 #elif defined (MT7628_ASIC_BOARD)
-#define CPU_CLOCK_RATE	600000000 
+#define CPU_CLOCK_RATE	600000000
 #elif defined (MT7621_ASIC_BOARD)
 #if defined (MT7621_CPU_FREQUENCY)
 #define CPU_CLOCK_RATE	(MT7621_CPU_FREQUENCY*1000000)
@@ -79,16 +79,16 @@ extern unsigned int  CFG_BLOCKSIZE;
 #define CPU_CLOCK_RATE  (800000000)
 #endif
 #elif defined (RT2883_ASIC_BOARD)
-#define CPU_CLOCK_RATE	400000000 
+#define CPU_CLOCK_RATE	400000000
 #elif defined (RT3883_ASIC_BOARD)
-#define CPU_CLOCK_RATE	500000000 
+#define CPU_CLOCK_RATE	500000000
 #elif defined (RT5350_ASIC_BOARD)
-#define CPU_CLOCK_RATE	360000000 
+#define CPU_CLOCK_RATE	360000000
 #else
 #define CPU_CLOCK_RATE	FPGA_BOARD_CLOCK_RATE /* default: 150 MHz clock for the MIPS core */
 #endif
 
-#endif 
+#endif
 
 #define SERIAL_CLOCK_DIVISOR 16
 
@@ -96,8 +96,8 @@ extern unsigned int  CFG_BLOCKSIZE;
 
 #define CONFIG_BAUDRATE		115200
 
-#define CONFIG_SERVERIP 192.168.1.100
-#define CONFIG_IPADDR   192.168.1.111
+#define CONFIG_SERVERIP 192.168.8.1
+#define CONFIG_IPADDR   192.168.8.8
 #define CONFIG_ETHADDR "00:AA:BB:CC:DD:10"
 /* valid baudrates */
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
@@ -116,27 +116,27 @@ extern unsigned int  CFG_BLOCKSIZE;
  */
 #define	CFG_LONGHELP				/* undef to save memory      */
 
-#if defined (RT2880_FPGA_BOARD) || defined (RT2880_ASIC_BOARD) 
+#if defined (RT2880_FPGA_BOARD) || defined (RT2880_ASIC_BOARD)
 #define	CFG_PROMPT		"RT2880 # "
-#elif defined (RT2883_FPGA_BOARD) || defined (RT2883_ASIC_BOARD) 
+#elif defined (RT2883_FPGA_BOARD) || defined (RT2883_ASIC_BOARD)
 #define	CFG_PROMPT		"RT2883 # "
-#elif defined (RT3052_FPGA_BOARD) || defined (RT3052_ASIC_BOARD) 
+#elif defined (RT3052_FPGA_BOARD) || defined (RT3052_ASIC_BOARD)
 #define	CFG_PROMPT		"RT3052 # "
-#elif defined (RT3352_FPGA_BOARD) || defined (RT3352_ASIC_BOARD) 
+#elif defined (RT3352_FPGA_BOARD) || defined (RT3352_ASIC_BOARD)
 #define	CFG_PROMPT		"RT3352 # "
-#elif defined (RT3883_FPGA_BOARD) || defined (RT3883_ASIC_BOARD) 
+#elif defined (RT3883_FPGA_BOARD) || defined (RT3883_ASIC_BOARD)
 #define	CFG_PROMPT		"RT3883 # "
-#elif defined (RT5350_FPGA_BOARD) || defined (RT5350_ASIC_BOARD) 
+#elif defined (RT5350_FPGA_BOARD) || defined (RT5350_ASIC_BOARD)
 #define	CFG_PROMPT		"RT5350 # "
-#elif defined (RT6855_FPGA_BOARD) || defined (RT6855_ASIC_BOARD) 
+#elif defined (RT6855_FPGA_BOARD) || defined (RT6855_ASIC_BOARD)
 #define	CFG_PROMPT		"RT6855 # "
-#elif defined (RT6855A_FPGA_BOARD) || defined (RT6855A_ASIC_BOARD) 
+#elif defined (RT6855A_FPGA_BOARD) || defined (RT6855A_ASIC_BOARD)
 #define	CFG_PROMPT		"RT6855A # "
-#elif defined (MT7620_FPGA_BOARD) || defined (MT7620_ASIC_BOARD) 
+#elif defined (MT7620_FPGA_BOARD) || defined (MT7620_ASIC_BOARD)
 #define	CFG_PROMPT		"MT7620 # "
-#elif defined (MT7621_FPGA_BOARD) || defined (MT7621_ASIC_BOARD) 
+#elif defined (MT7621_FPGA_BOARD) || defined (MT7621_ASIC_BOARD)
 #define	CFG_PROMPT		"MT7621 # "
-#elif defined (MT7628_FPGA_BOARD) || defined (MT7628_ASIC_BOARD) 
+#elif defined (MT7628_FPGA_BOARD) || defined (MT7628_ASIC_BOARD)
 #define	CFG_PROMPT		"MT7628 # "
 #else
 #define	CFG_PROMPT		"RTxxxx # "
@@ -162,10 +162,10 @@ extern unsigned int  CFG_BLOCKSIZE;
 #endif
 
 
-/* 
- * for TEST 
+/*
+ * for TEST
  */
-#define CFG_CONSOLE_INFO_QUIET	
+#define CFG_CONSOLE_INFO_QUIET
 
 #if defined (RT2880_FPGA_BOARD) || defined (RT2880_ASIC_BOARD)
 #define	CFG_LOAD_ADDR		0x8A100000	/* default load address	*/
@@ -219,7 +219,7 @@ extern unsigned int  CFG_BLOCKSIZE;
 #define PHYS_FLASH_2		0xBC000000 /* Image1 Bank #2 */
 #define PHYS_FLASH2_1		0xBC400000 /* Image2 Bank #1 */
 #define PHYS_FLASH2_2		0xBC800000 /* Image2 Bank #2 */
-#endif 
+#endif
 #else //Non Dual Image
 #ifdef ON_BOARD_8M_FLASH_COMPONENT
 #define PHYS_FLASH_1		0xBC400000 /* Flash Bank #1 */
@@ -401,8 +401,8 @@ extern unsigned int  CFG_BLOCKSIZE;
  *   0x10  -- SYSCFG		System Configuration Register
  *   0x30  -- CLKCFG1		Clock Configuration Register
  *   0x34  -- RSTCTRL		Reset Control Register
- *   0x38  -- RSTSTAT		Reset Status Register 
- *   0x60  -- GPIOMODE		GPIO Mode Control Register 
+ *   0x38  -- RSTSTAT		Reset Status Register
+ *   0x60  -- GPIOMODE		GPIO Mode Control Register
  */
 #define RT2880_SYS_CNTL_BASE			(RALINK_SYSCTL_BASE)
 #if defined (RT6855A_FPGA_BOARD) || defined (RT6855A_ASIC_BOARD)
@@ -445,7 +445,7 @@ extern unsigned int  CFG_BLOCKSIZE;
 #define RT2880_REG_PIOSET       (RT2880_PRGIO_ADDR + 0x30)
 #define RT2880_REG_PIORESET     (RT2880_PRGIO_ADDR + 0x40)
 #endif
-#define RALINK_REG(x)		(*((volatile u32 *)(x)))	
+#define RALINK_REG(x)		(*((volatile u32 *)(x)))
 #if defined (RT6855A_FPGA_BOARD) || defined (RT6855A_ASIC_BOARD) || \
     defined (MT7621_FPGA_BOARD) || defined (MT7621_ASIC_BOARD) || defined (MT7628_FPGA_BOARD) || defined (MT7628_ASIC_BOARD)
 #define ra_inb(offset)		(*(volatile unsigned char *)(offset))
@@ -530,6 +530,3 @@ extern unsigned int  CFG_BLOCKSIZE;
 #define WEBFAILSAFE_UPGRADE_TYPE_UBOOT			1
 #define WEBFAILSAFE_UPGRADE_TYPE_ART			2
 #endif	/* __CONFIG_H */
-
-
-
