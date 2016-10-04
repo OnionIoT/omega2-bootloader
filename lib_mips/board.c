@@ -2075,10 +2075,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
                 eth_initialize(gd->bd);
                 NetLoopHttpd();
                 break;
-            case '2':
-                // zh@onion.io
-                flash_via_usb();
-                break;
+            // case '2':
+            //     // zh@onion.io
+            //     flash_via_usb();
+            //     break;
             case '3':
                 printf("   \n%d: System Load Linux to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
                 tftp_config(SEL_LOAD_LINUX_SDRAM, argv);
@@ -2322,7 +2322,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 #ifdef RALINK_USB
             //#if defined (CFG_ENV_IS_IN_NAND) || defined (CFG_ENV_IS_IN_SPI)
-#if 0
+// #if 0
                         case '2':
                             printf("System Load Linux then write to Flash via USB Storage. \n");
                             printf("Looking for a USB Storage. \n");
@@ -2378,7 +2378,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
                             //reset
                             do_reset(cmdtp, 0, argc, argv);
                             break;
-#endif
+// #endif
 #endif // RALINK_UPGRADE_BY_USB //
 
             default:
@@ -3100,7 +3100,7 @@ void gpio_test( void )
 }
 
 void flash_via_usb (void){
-
+/*
   char *argv[5];
   int argc = 3;
 
@@ -3225,5 +3225,5 @@ void flash_via_usb (void){
 
       do_bootm(cmdtp, 0, 2, argv_normal);
   }
-
+*/
 }
