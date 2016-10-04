@@ -2063,6 +2063,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
             }
         }
 
+        char *argv[5];
+        int argc = 3;
+
         switch (BootType)
         {
             // zh@onion.io
