@@ -198,8 +198,8 @@ ifeq ($(ONION_TFTP_FLASH),ON)
 CPPFLAGS += -DONION_TFTP_FLASH
 endif
 
-ifeq ($(ONION_TFTP_FLASH),ON)
-CPPFLAGS += -DONION_TFTP_FLASH
+ifeq ($(ONION_USB_FLASH),ON)
+CPPFLAGS += -DONION_USB_FLASH
 endif
 ### End of Onion Config Parameters ###
 
