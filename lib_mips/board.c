@@ -33,6 +33,8 @@
 #include <spi_api.h>
 #include <nand_api.h>
 
+#include <serial.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 #undef DEBUG
 
