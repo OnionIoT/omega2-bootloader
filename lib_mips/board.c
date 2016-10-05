@@ -904,44 +904,48 @@ void OperationSelect(void)
     //printf("   %d: Enter led testing mode.\n", SEL_TEST_LEDS);
     // zh@onion.io
     // update boot menu format
-    printf("   [ b ]: Boot Omega2.\n");
-
+    printf("   [ Enter ]: Boot Omega2.\n");
 
     // zh@onion.io
-    // TODO: define config switch for Ethernt recoverty
-// #ifdef RALINK_CMDLINE
-    printf("   [ %d ]: Start Ethernet recovery mode.\n", SEL_WEB_MODE);
-// #endif // RALINK_CMDLINE //
+#ifdef ONION_WEB_FLASH
+    printf("   [ %d ]: Start Web recovery mode.\n", SEL_WEB_MODE);
+#endif //ONION_WEB_FLASH
 
 #ifdef RALINK_CMDLINE
     printf("   [ %d ]: Start command line mode.\n", SEL_ENTER_CLI);
 #endif // RALINK_CMDLINE //
 
+#ifdef ONION_USB_FLASH
     printf("   [ %d ]: Flash firmware from USB storage. \n", SEL_LOAD_LINUX_USB);
+#endif //ONION_USB_FLASH
 
-    //youlian@onion.io below line omitted from received src, so it remains omitted for now
-#ifndef TEMP_MAINTENANCE
+#ifdef ONION_TFTP_FLASH_SDRAM
     printf("   [ %d ]: Flash firmware to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
-#endif
+#endif // ONION_TFTP_FLASH
 
 #ifdef RALINK_UPGRADE_BY_SERIAL
     printf("   [ %d ]: Flash firmware via Serial. \n", SEL_LOAD_LINUX_WRITE_FLASH_BY_SERIAL);
 #endif // RALINK_UPGRADE_BY_SERIAL //
 
+#ifdef ONION_TFTP_FLASH
     printf("   [ %d ]: Flash firmware via TFTP. \n", SEL_LOAD_LINUX_WRITE_FLASH);
+#endif // ONION_TFTP_FLASH
 
-#ifndef TEMP_MAINTENANCE
+#ifdef ONION_USB_FLASH
     printf("   [ %d ]: Flash boot loader code from USB. \n", SEL_LOAD_BOOT_USB);
 #endif
 
+#ifdef ONION_TFTP_FLASH_SDRAM
     printf("   [ %d ]: Flash boot loader code then write to SDRAM via TFTP. \n", SEL_LOAD_BOOT_SDRAM);
+#endif
 
 #ifdef RALINK_UPGRADE_BY_SERIAL
 	printf("   [ %d ]: Flash boot loader via Serial. \n", SEL_LOAD_BOOT_WRITE_FLASH_BY_SERIAL);
 #endif // RALINK_UPGRADE_BY_SERIAL //
 
+#ifdef ONION_TFTP_FLASH
 	printf("   [ %d ]: Flash boot loader via TFTP. \n", SEL_LOAD_BOOT_WRITE_FLASH);
-
+#endif // ONION_TFTP_FLASH
 }
 
 int tftp_config(int type, char *argv[])
@@ -2068,12 +2072,14 @@ void board_init_r (gd_t *id, ulong dest_addr)
         {
             // zh@onion.io
             // added ethernet bootsafe as option 0
-            // TODO: add #ifdef macro
+#ifdef ONION_WEB_FLASH
             case '0':
                 eth_initialize(gd->bd);
                 NetLoopHttpd();
                 break;
+#endif //ONION_WEB_FLASH
 
+#ifdef ONION_TFTP_FLASH_SDRAM
             case '3':
                 printf("   \n%d: System Load Linux to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
                 tftp_config(SEL_LOAD_LINUX_SDRAM, argv);
@@ -2081,7 +2087,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
                 setenv("autostart", "yes");
                 do_tftpb(cmdtp, 0, argc, argv);
                 break;
+#endif //ONION_TFTP_FLASH_SDRAM
 
+#ifdef ONION_TFTP_FLASH
             case '5':
                 printf("   \n%d: System Load Linux Kernel then write to Flash via TFTP. \n",
                        SEL_LOAD_LINUX_WRITE_FLASH);
@@ -2168,6 +2176,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
                 do_bootm(cmdtp, 0, argc, argv);
                 break;
 
+#endif //ONION_TFTP_FLASH
+
+
+
 #ifdef RALINK_CMDLINE
             case '1':
                 printf("   \n%d: System Enter Boot Command Line Interface.\n", SEL_ENTER_CLI);
@@ -2179,6 +2191,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
                 break;
 
 #endif // RALINK_CMDLINE //
+
+
 #ifdef RALINK_UPGRADE_BY_SERIAL
             case '8':
                 printf("\n%d: System Load Boot Loader then write to Flash via Serial. \n", SEL_LOAD_BOOT_WRITE_FLASH_BY_SERIAL);
@@ -2227,6 +2241,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
                 do_reset(cmdtp, 0, argc, argv);
                 break;
 #endif // RALINK_UPGRADE_BY_SERIAL //
+
+
+#ifdef ONION_TFTP_FLASH_SDRAM
             case '7':
                 printf("   \n%d: System Load UBoot to SDRAM via TFTP. \n", SEL_LOAD_BOOT_SDRAM);
                 tftp_config(SEL_LOAD_BOOT_SDRAM, argv);
@@ -2234,7 +2251,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
                 setenv("autostart", "yes");
                 do_tftpb(cmdtp, 0, argc, argv);
                 break;
+#endif //ONION_TFTP_FLASH_SDRAM
 
+#ifdef ONION_TFTP_FLASH
             case 'SEL_LOAD_BOOT_WRITE_FLASH':
                 printf("   \n%d: System Load Boot Loader then write to Flash via TFTP. \n",
                        SEL_LOAD_BOOT_WRITE_FLASH);
@@ -2293,6 +2312,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
                 //reset
                 do_reset(cmdtp, 0, argc, argv);
                 break;
+#endif //ONION_TFTP_FLASH
+
+
 #ifdef RALINK_UPGRADE_BY_SERIAL
 #if defined (CFG_ENV_IS_IN_NAND) || defined (CFG_ENV_IS_IN_SPI)
             case 'SEL_LOAD_LINUX_WRITE_FLASH_BY_SERIAL':

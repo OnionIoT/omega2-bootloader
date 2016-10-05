@@ -22,6 +22,15 @@
 #PCI_MODE = PCI_FUNC
 #UARTF_MODE = UARTF_FUNC
 
+
+#----------------------------------------
+# Onion Configurations
+#----------------------------------------
+ONION_WEB_FLASH = ON
+ONION_TFTP_FLASH_SDRAM = OFF
+ONION_TFTP_FLASH = OFF
+ONION_USB_FLASH = ON
+
 ######## RT2880 test function option configuration ##########################
 RALINK_DDR_CONTROLLER_OPTIMIZATION = OFF
 RALINK_CPU_AUTO_FREQUENCY = OFF
@@ -58,11 +67,12 @@ RALINK_SWITCH_DEBUG_FUN = OFF
 ###################################
 # Optimized for Size flag
 ###################################
-ifeq ($(ON_BOARD_NAND_FLASH_COMPONENT),y)
+#  zh@onion.io turn off flash by serial
+# ifeq ($(ON_BOARD_NAND_FLASH_COMPONENT),y)
 RALINK_UPGRADE_BY_SERIAL = OFF
-else
-RALINK_UPGRADE_BY_SERIAL = ON
-endif
+# else
+# RALINK_UPGRADE_BY_SERIAL = ON
+# endif
 RALINK_CMDLINE = ON
 RALINK_MDIO_ACCESS_FUN = ON
 RALINK_EPHY_INIT = ON
