@@ -2351,12 +2351,12 @@ void board_init_r (gd_t *id, ulong dest_addr)
                             printf("\n");
                             printf("\n");
                             printf("***************************************\n");
-                            printf("*  [!] This will take several minuts  *\n");
+                            printf("* [!] This will take several minutes  *\n");
                             printf("* please do not power off your Omega2 *\n");
                             printf("***************************************\n");
                             printf("\n");
                             printf("\n");
-                            
+
                             if(do_fat_fsload(cmdtp, 0, argc, argv)){
                                 printf("Upgrade F/W from USB storage failed.\n");
                                 break;
