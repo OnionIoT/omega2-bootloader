@@ -133,7 +133,6 @@ void led_off(void);
 // Added by zh@onion.io
 int detect_rst(void); // rename wps button to rst
 void gpio_test( void );
-void init_uart_2( void );
 
 
 static void Init_System_Mode(void)
@@ -2005,10 +2004,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	}
 	gpio_init();
 
-  // zh@onion.io
-  // init uart 2 with 8 databit
-  init_uart_2();
-
     // zh@onion.io
     // made message shorter
     printf("\n");
@@ -3111,18 +3106,4 @@ void gpio_test( void )
 	RALINK_REG(0xb0000604)=gpio_ctrl1;
 	RALINK_REG(0xb0000620)=gpio_dat0;
 	RALINK_REG(0xb0000624)=gpio_dat1;
-}
-
-
-void init_uart_2 (void) {
-   u32 val;
-
-   u32 uart2_addr = 0x0D00; //UART 2
-   u32 lcr_addr = 0x0C; // Uart Control Flag
-  // val = LCR(uart2_addr);
-  val = RALINK_REG(RT2880_SYS_CNTL_BASE + lcr_addr + uart2_addr);
-  printf('UART_1 register reading: 0x%08x\n', val);
-	val|= 0x03; // 8 data bits
-  RALINK_REG(RT2880_SYS_CNTL_BASE + lcr_addr + uart2_addr) = val;
-  printf('UART_1 register new value: 0x%08x\n', val);
 }

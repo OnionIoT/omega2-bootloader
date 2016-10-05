@@ -100,7 +100,7 @@ void serial_setbrg (void)
 	u8	clk_sel2;
 #endif
 
-	/* 
+	/*
 	 * CPU_CLK_SEL (bit 21:20)
 	 */
 #ifdef RT2880_FPGA_BOARD
@@ -157,7 +157,7 @@ void serial_setbrg (void)
 			cpu_clock = (280*1000*1000);
 			break;
 
-		
+
 #endif
 	}
 	mips_bus_feq = cpu_clock / 2;
@@ -226,6 +226,13 @@ void serial_setbrg (void)
 	DLL(CFG_RT2880_CONSOLE) = clock_divisor & 0xff;
 	DLM(CFG_RT2880_CONSOLE) = clock_divisor >> 8;
 	LCR(CFG_RT2880_CONSOLE) = LCR_WLS0 | LCR_WLS1;
+
+	// zh@onion.io
+	// also initialize uart2 in Onion Omega2
+	LCR(0x0D00) = LCR_WLS0 | LCR_WLS1 | LCR_DLAB;
+	DLL(0x0D00) = clock_divisor & 0xff;
+	DLM(0x0D00) = clock_divisor >> 8;
+	LCR(0x0D00) = LCR_WLS0 | LCR_WLS1;
 }
 #endif // defined(RT6855A_ASIC_BOARD) || defined(RT6855A_FPGA_BOARD) //
 
@@ -250,7 +257,7 @@ int serial_init (void)
  */
 void serial_putc (const char c)
 {
-#if defined (RT6855A_FPGA_BOARD) || defined (RT6855A_ASIC_BOARD) 
+#if defined (RT6855A_FPGA_BOARD) || defined (RT6855A_ASIC_BOARD)
 	while (!(ra_inb(CR_UART_LSR) & LSR_TEMT));
 	ra_outb(CR_UART_THR, c);
 	if (c == '\n')
@@ -274,7 +281,7 @@ void serial_putc (const char c)
  */
 int serial_tstc (void)
 {
-#if defined (RT6855A_FPGA_BOARD) || defined (RT6855A_ASIC_BOARD) 
+#if defined (RT6855A_FPGA_BOARD) || defined (RT6855A_ASIC_BOARD)
 	return (ra_inb(CR_UART_LSR) & LSR_DR);
 #else
 	return LSR(CFG_RT2880_CONSOLE) & LSR_DR;
@@ -288,7 +295,7 @@ int serial_tstc (void)
  */
 int serial_getc (void)
 {
-#if defined (RT6855A_FPGA_BOARD) || defined (RT6855A_ASIC_BOARD) 
+#if defined (RT6855A_FPGA_BOARD) || defined (RT6855A_ASIC_BOARD)
 	while (!(ra_inb(CR_UART_LSR) & LSR_DR));
 	return (char) (ra_inb(CR_UART_RBR) & 0xff);
 #else
