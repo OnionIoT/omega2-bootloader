@@ -3115,12 +3115,14 @@ void gpio_test( void )
 
 
 void init_uart_2 (void) {
-  u32 val;
+   u32 val;
 
    u32 uart2_addr = 0x0D00; //UART 2
-  val = LCR(uart2_addr);
+   u32 lcr_addr = 0x0C; // Uart Control Flag
+  // val = LCR(uart2_addr);
+  val = RALINK_REG(RT2880_SYS_CNTL_BASE + lcr_addr + uart2_addr);
   printf('UART_1 register reading: 0x%08x\n', val);
 	val|= 0x03; // 8 data bits
-  LCR(uart2_addr) = val;
+  RALINK_REG(RT2880_SYS_CNTL_BASE + lcr_addr + uart2_addr) = val;
   printf('UART_1 register new value: 0x%08x\n', val);
 }
