@@ -184,6 +184,27 @@ CPPFLAGS := $(DBGFLAGS) $(OPTFLAGS) $(RELFLAGS)		\
 	$(gccincdir) -pipe $(PLATFORM_CPPFLAGS)
 #	-DROUTER100					\
 
+
+### End of Onion Config Parameters ###
+ifeq ($(ONION_WEB_FLASH),ON)
+CPPFLAGS += -DONION_WEB_FLASH
+endif
+
+ifeq ($(ONION_TFTP_FLASH_SDRAM),ON)
+CPPFLAGS += -DONION_TFTP_FLASH_SDRAM
+endif
+
+ifeq ($(ONION_TFTP_FLASH),ON)
+CPPFLAGS += -DONION_TFTP_FLASH
+endif
+
+ifeq ($(ONION_TFTP_FLASH),ON)
+CPPFLAGS += -DONION_TFTP_FLASH
+endif
+### End of Onion Config Parameters ###
+
+
+
 ifeq ($(UN_NECESSITY_U_BOOT_CMD_OPEN),ON)
 CPPFLAGS += -DRT2880_U_BOOT_CMD_OPEN
 endif
