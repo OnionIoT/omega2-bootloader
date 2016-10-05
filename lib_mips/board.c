@@ -33,8 +33,6 @@
 #include <spi_api.h>
 #include <nand_api.h>
 
-#include <serial.h>
-
 DECLARE_GLOBAL_DATA_PTR;
 #undef DEBUG
 
@@ -3118,9 +3116,11 @@ void gpio_test( void )
 
 void init_uart_2 (void) {
   u32 val;
-  val = LCR(RT2880_UART2);
+
+   u32 uart2_addr = 0x0D00; //UART 2
+  val = LCR(uart2_addr);
   printf('UART_1 register reading: 0x%08x\n', val);
 	val|= 0x03; // 8 data bits
-  LCR(RT2880_UART2) = val;
+  LCR(uart2_addr) = val;
   printf('UART_1 register new value: 0x%08x\n', val);
 }
