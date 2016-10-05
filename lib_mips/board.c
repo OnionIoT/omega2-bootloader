@@ -931,9 +931,9 @@ void OperationSelect(void)
     printf("   [ %d ]: Flash firmware via TFTP. \n", SEL_LOAD_LINUX_WRITE_FLASH);
 #endif // ONION_TFTP_FLASH
 
-#ifdef ONION_USB_FLASH
-    printf("   [ %d ]: Flash boot loader code from USB. \n", SEL_LOAD_BOOT_USB);
-#endif
+// #ifdef ONION_USB_FLASH
+//     printf("   [ %d ]: Flash boot loader code from USB. \n", SEL_LOAD_BOOT_USB);
+// #endif
 
 #ifdef ONION_TFTP_FLASH_SDRAM
     printf("   [ %d ]: Flash boot loader code then write to SDRAM via TFTP. \n", SEL_LOAD_BOOT_SDRAM);
