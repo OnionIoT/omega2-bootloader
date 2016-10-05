@@ -130,11 +130,10 @@ void gpio_init(void);
 void led_on(void);
 void led_off(void);
 
-// zh@onion.io rename wps button to rst
-int detect_rst(void);
+// Added by zh@onion.io
+int detect_rst(void); // rename wps button to rst
 void gpio_test( void );
-
-
+void init_uart_2( void );
 
 
 static void Init_System_Mode(void)
@@ -2004,12 +2003,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	    s = getenv ("bootdelay");
 	    timer1 = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
 	}
-/*web failsafe*/
 	gpio_init();
-	//printf( "\nif you press the WPS button for more than 3 tyies will automatically enter the Update mode,more than 7 seconds enter gpio test mode\n");
 
-// #undef TEMP_MAINTENANCE_FAILSAFE
-// #ifndef TEMP_MAINTENANCE_FAILSAFE
+  // zh@onion.io
+  // init uart 2 with 8 databit
+  init_uart_2();
 
     // zh@onion.io
     // made message shorter
@@ -3113,4 +3111,14 @@ void gpio_test( void )
 	RALINK_REG(0xb0000604)=gpio_ctrl1;
 	RALINK_REG(0xb0000620)=gpio_dat0;
 	RALINK_REG(0xb0000624)=gpio_dat1;
+}
+
+
+void init_uart_2 (void) {
+  u32 val;
+  val = LCR(RT2880_UART2);
+  printf('UART_1 register reading: 0x%08x\n', val);
+	val|= 0x03; // 8 data bits
+  LCR(RT2880_UART2) = val;
+  printf('UART_1 register new value: 0x%08x\n', val);
 }
