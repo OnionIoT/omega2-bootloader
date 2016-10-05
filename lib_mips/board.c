@@ -2072,12 +2072,12 @@ void board_init_r (gd_t *id, ulong dest_addr)
         {
             // zh@onion.io
             // added ethernet bootsafe as option 0
-#ifdef ONION_WEB_FLASH
+// #ifdef ONION_WEB_FLASH // failsafe
             case '0':
                 eth_initialize(gd->bd);
                 NetLoopHttpd();
                 break;
-#endif //ONION_WEB_FLASH
+// #endif //ONION_WEB_FLASH
 
 #ifdef ONION_TFTP_FLASH_SDRAM
             case '3':
