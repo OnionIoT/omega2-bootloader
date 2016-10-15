@@ -3046,6 +3046,8 @@ int detect_rst( void )
     }
 
 }
+
+
 void gpio_test( void )
 {
 	u32 agpio_cfg,gpio1_mode,gpio2_mode,val;
@@ -3061,50 +3063,163 @@ void gpio_test( void )
 	//agpio
 	val=0;
 	val|=0x0f<<17;//ephy p1-p4 selection digital PAD
-	val|=0x1f;//refclk,i2s digital PAD
+	val|=0x1f;//refclk,i2s digital PAD #GPIO37 GPIO0~3
 	RALINK_REG(RT2880_SYS_CNTL_BASE+0x3c)=val;
 	//gpio1_mode
 	val=0;
-	val|=0x05<<28;//pwm0,pwm1
-	val|=0x05<<24;//uart1,uart2
-	val|=0x01<<20;//i2c_mode
-	val|=0x01<<18;//refclk
-	val|=0x01<<14;//wdt_mode
-	val|=0x01<<10;//sd_mode
-	val|=0x01<<6;//i2s
-	val|=0x01<<4;//cs1
-	val|=0x01<<2;//spis
+	val|=0x05<<28;//pwm0,pwm1 #GPIO18 19
+	val|=0x05<<24;//uart1,uart2 #GPIO45 46,GPIO20 21
+	val|=0x01<<20;//i2c_mode #GPIO4 5
+	val|=0x01<<18;//refclk   #GPIO37
+	val|=0x01<<14;//wdt_mode #GPIO38
+	//val|=0x01<<10;//sd_mode  #GPIO22~29
+	val|=0x01<<8;//uart0 GPIO12 13
+	val|=0x01<<6;//i2s GPIO0~3
+	val|=0x01<<4;//cs1 GPIO6
+	val|=0x01<<2;//spis GPIO14~17
 	RALINK_REG(RT2880_SYS_CNTL_BASE+0x60)=val;
 	//gpio2_mode
 	val=0;
-	val|=0x01<<10;//p4 led
-	val|=0x01<<8;//p3 led
-	val|=0x01<<6;//p2 led
-	val|=0x01<<4;//p1 led
-	val|=0x01<<2;//p0 led
-	val|=0x01<<0;//wled
+	val|=0x01<<10;//p4led GPIO39
+	val|=0x01<<8;//p3 led GPIO40
+	val|=0x01<<6;//p2 led GPIo41
+	val|=0x01<<4;//p1 led GPIo42
+	val|=0x01<<2;//p0 led Gpio43
+	val|=0x01<<0;//wled   GPIO44
 	RALINK_REG(RT2880_SYS_CNTL_BASE+0x64)=val;
 	//ctrl0,ctrl1
 	RALINK_REG(0xb0000600)=0xffffffff;
 	RALINK_REG(0xb0000604)=0xffffffff;
-	RALINK_REG(0xb0000604)&=~(0x01<<6);
+	RALINK_REG(0xb0000604)&=~0x01<<6;
 
 	udelay(600000);
+	#if 1
+	for(i=0;i<2;i++)
+	{
+		printf("\nall led off GPIO high\n");
+		RALINK_REG(0xb0000620)=0xffffffff;
+		RALINK_REG(0xb0000624)=0xffffffff;
+		udelay(1000000);
 
-    for(i=0;i<100;i++){
-	    printf("Testing all led off...\n");
-	    RALINK_REG(0xb0000620)=0xffffffff;
-	    RALINK_REG(0xb0000624)=0xffffffff;
-	    udelay(200000);
-	    printf("Testing all led on...\n");
-	    RALINK_REG(0xb0000620)=0x0;
-	    RALINK_REG(0xb0000624)=0x0;
-	    udelay(200000);
-	    if(detect_rst())
-        {
-            break;
-        }
-    }
+		if(detect_wps())
+		break;
+
+		printf("\nall led on GPIO low\n");
+		RALINK_REG(0xb0000620)=0x0;
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(400000);
+
+		//==========
+		printf("\nall led off GPIO high\n");
+		RALINK_REG(0xb0000620)=0xffffffff;
+		RALINK_REG(0xb0000624)=0xffffffff;
+		udelay(1000000);
+
+		if(detect_wps())
+		break;
+
+		printf("\nall led on GPIO low\n");
+		RALINK_REG(0xb0000620)=0x0;
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(300000);
+
+		//G11 G3 G2 G17 16 15 G46 G45 G6 G1 G0
+	  RALINK_REG(0xb0000620)=0x800;		//G11
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000620)=0x8;		//G3
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  RALINK_REG(0xb0000620)=0x4;		//G2
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+//==
+		RALINK_REG(0xb0000620)=0x20000;		//G17
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  RALINK_REG(0xb0000620)=0x10000;		//G16
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  RALINK_REG(0xb0000620)=0x8000;		//G15
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+//==
+
+		RALINK_REG(0xb0000624)=0x4000; //G46
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000624)=0x2000;//G45
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000620)=0x40;		//G6
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  RALINK_REG(0xb0000620)=0x2;		//G1
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(100000);
+
+		RALINK_REG(0xb0000620)=0x1;		//G0
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+		//====================
+		//G5 G4 G19 G18 G12 13
+
+		if(detect_wps())
+		break;
+
+		RALINK_REG(0xb0000620)=0x20;		//G5
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  RALINK_REG(0xb0000620)=0x10;		//G4
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000620)=0x80000;		//G19
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  RALINK_REG(0xb0000620)=0x40000;		//G18
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+		#if 1
+		RALINK_REG(0xb0000620)=0x1000;		//G12
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(300000);
+
+	  RALINK_REG(0xb0000620)=0x2000;		//G13
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+		#endif
+
+	}
+	#endif
+
 
 	RALINK_REG(RT2880_SYS_CNTL_BASE+0x3c)=agpio_cfg;
 	RALINK_REG(RT2880_SYS_CNTL_BASE+0x60)=gpio1_mode;
