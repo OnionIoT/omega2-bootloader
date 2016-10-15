@@ -2072,6 +2072,13 @@ void board_init_r (gd_t *id, ulong dest_addr)
                 break;
 // #endif //ONION_WEB_FLASH
 
+
+            // zh@onion.io
+            // enable gpio test option
+            case 't':
+                gpio_test();
+                break;
+
 #ifdef ONION_TFTP_FLASH_SDRAM
             case '3':
                 printf("   \n%d: System Load Linux to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
