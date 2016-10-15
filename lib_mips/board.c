@@ -3101,9 +3101,6 @@ void gpio_test( void )
 		RALINK_REG(0xb0000624)=0xffffffff;
 		udelay(1000000);
 
-		if(detect_wps())
-		break;
-
 		printf("\nall led on GPIO low\n");
 		RALINK_REG(0xb0000620)=0x0;
 		RALINK_REG(0xb0000624)=0x0;
@@ -3114,9 +3111,6 @@ void gpio_test( void )
 		RALINK_REG(0xb0000620)=0xffffffff;
 		RALINK_REG(0xb0000624)=0xffffffff;
 		udelay(1000000);
-
-		if(detect_wps())
-		break;
 
 		printf("\nall led on GPIO low\n");
 		RALINK_REG(0xb0000620)=0x0;
@@ -3181,9 +3175,6 @@ void gpio_test( void )
 		udelay(200000);
 		//====================
 		//G5 G4 G19 G18 G12 13
-
-		if(detect_wps())
-		break;
 
 		RALINK_REG(0xb0000620)=0x20;		//G5
 		udelay(300000);
