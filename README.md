@@ -1,13 +1,28 @@
+# U-Boot for Onion Omega2
 
-U-Boot for Onion Omega2
+## SETUP BUILD ENVIRONMENT
 
-SETUP BUILD ENVIRONMENT
 ```
 sh setup_env.sh
 ```
+part of the setup is unpacking the MTK built tool. these tools reqire 32bit gcc libs.
 
-NOTE THAT YOU NEED A WIRE
+## MEMORY MAPS AND BOARD CONFIGURATION
+SoC spaicifc configuration are located in `/include/configs/rt2880.h`.
+Web recovery tool can be configured with:
+```
+#define CONFIG_SERVERIP 192.168.8.1
+#define CONFIG_IPADDR   192.168.8.8
+#define CONFIG_ETHADDR "00:AA:BB:CC:DD:10"
+```
+Max uboot upload size can be configured with:
+```
+#define WEBFAILSAFE_UPLOAD_UBOOT_SIZE_IN_BYTES		( 1024 * 1024 )
+```
 
+
+## NOTE THAT YOU NEED A WIRE
+(Only applies to early Omega2 sample firmware)
 You need a wire connecting 3.3V pin and 2.5V pin to make the following code getting the WPS button state work
 ```
 val=RALINK_REG(0xb0000624);
