@@ -158,7 +158,7 @@
 /* USB appliance */
 #if defined (RALINK_USB) || defined (MTK_USB)
 #undef  CONFIG_COMMANDS
-#define CONFIG_COMMANDS (CONFIG_CMD_DFL | CFG_CMD_USB | CFG_CMD_MMC | CFG_CMD_FAT )
+#define CONFIG_COMMANDS (CONFIG_CMD_DFL | CFG_CMD_USB | CFG_CMD_FAT )
 #endif
 
 /*
