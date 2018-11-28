@@ -2995,8 +2995,8 @@ void gpio_init(void)
 {
 	u32 val;
 	printf( "Initializing MT7688 GPIO system.\n" );
-	//set gpio2_mode 1:0=2b01 wled,p1,p2,p3,p4 is gpio.p0 is ephy
-	val = 0x551;
+	//set gpio2_mode 1:0=2b01 wled,p0,p1,p2,p3,p4 as gpio
+	val = 0x555;
 	RALINK_REG(RT2880_SYS_CNTL_BASE+0x64)=val;
 	RALINK_REG(0xb0000644)=0x0f<<7;
 	//gpio44 output gpio_ctrl_1 bit3=1
@@ -3021,13 +3021,13 @@ void gpio_init(void)
   val=RALINK_REG(RT2880_REG_PIODATA);
   val|=1<<11;
   RALINK_REG(RT2880_REG_PIODATA) = val; // GPIO 11 High
-  
+
   //jeffzhou@onion.io
   //adding for read wifi MAC address.
   unsigned char macbuf[6];
 	raspi_read(macbuf, CFG_FACTORY_ADDR - CFG_FLASH_BASE + 0x04, 6);
 	printf("wifi mac address = %02X%02X%02X%02X%02X%02X.\n",
-			macbuf[0],macbuf[1],macbuf[2],macbuf[3],macbuf[4],macbuf[5]);	
+      macbuf[0],macbuf[1],macbuf[2],macbuf[3],macbuf[4],macbuf[5]);
 }
 
 void led_on( void )
