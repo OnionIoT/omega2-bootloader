@@ -133,7 +133,7 @@ void led_off(void);
 // Added by zh@onion.io
 int detect_rst(void); // rename wps button to rst
 void gpio_test( void );
-
+void gpio_test_omega2s( void );
 
 static void Init_System_Mode(void)
 {
@@ -2079,6 +2079,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
                 gpio_test();
                 break;
 
+            // enable Omega2s gpio test option
+            case 's':
+                gpio_test_omega2s();
+                break;
+
 #ifdef ONION_TFTP_FLASH_SDRAM
             case '3':
                 printf("   \n%d: System Load Linux to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
@@ -3005,8 +3010,8 @@ void gpio_init(void)
 	//gpio38 input gpio_ctrl_1 bit5=0
 	val=RALINK_REG(RT2880_REG_PIODIR+0x04);
 	val&=~1<<6;
-
 	RALINK_REG(RT2880_REG_PIODIR+0x04)=val;
+
 
   //zh@onion.io
   //setting GPIO 11 High, required for the reset button to work
@@ -3016,7 +3021,13 @@ void gpio_init(void)
   val=RALINK_REG(RT2880_REG_PIODATA);
   val|=1<<11;
   RALINK_REG(RT2880_REG_PIODATA) = val; // GPIO 11 High
-
+  
+  //jeffzhou@onion.io
+  //adding for read wifi MAC address.
+  unsigned char macbuf[6];
+	raspi_read(macbuf, CFG_FACTORY_ADDR - CFG_FLASH_BASE + 0x04, 6);
+	printf("wifi mac address = %02X%02X%02X%02X%02X%02X.\n",
+			macbuf[0],macbuf[1],macbuf[2],macbuf[3],macbuf[4],macbuf[5]);	
 }
 
 void led_on( void )
@@ -3048,7 +3059,179 @@ int detect_rst( void )
 }
 
 
-void gpio_test( void )
+void gpio_test( void ) //Test Omega2 GPIO
+{
+	u32 agpio_cfg,gpio1_mode,gpio2_mode,val;
+	u32 gpio_ctrl0,gpio_ctrl1,gpio_dat0,gpio_dat1;
+	u8 i=0;
+	agpio_cfg = RALINK_REG(RT2880_SYS_CNTL_BASE+0x3c);
+	gpio1_mode= RALINK_REG(RT2880_SYS_CNTL_BASE+0x60);
+	gpio2_mode= RALINK_REG(RT2880_SYS_CNTL_BASE+0x64);
+	gpio_ctrl0= RALINK_REG(0xb0000600);
+	gpio_ctrl1= RALINK_REG(0xb0000604);
+	gpio_dat0 = RALINK_REG(0xb0000620);
+	gpio_dat1 = RALINK_REG(0xb0000624);
+	//agpio
+	val=0;
+	val|=0x0f<<17;//ephy p1-p4 selection digital PAD
+	val|=0x1f;//refclk,i2s digital PAD #GPIO37 GPIO0~3
+	RALINK_REG(RT2880_SYS_CNTL_BASE+0x3c)=val;
+	//gpio1_mode
+	val=0;
+	val|=0x05<<28;//pwm0,pwm1 #GPIO18 19
+	val|=0x05<<24;//uart1,uart2 #GPIO45 46,GPIO20 21
+	val|=0x01<<20;//i2c_mode #GPIO4 5
+	val|=0x01<<18;//refclk   #GPIO37
+	val|=0x01<<14;//wdt_mode #GPIO38
+	//val|=0x01<<10;//sd_mode  #GPIO22~29
+	val|=0x01<<8;//uart0 GPIO12 13
+	val|=0x01<<6;//i2s GPIO0~3
+	val|=0x01<<4;//cs1 GPIO6
+	val|=0x01<<2;//spis GPIO14~17
+	RALINK_REG(RT2880_SYS_CNTL_BASE+0x60)=val;
+	//gpio2_mode
+	val=0;
+	val|=0x01<<10;//p4led GPIO39
+	val|=0x01<<8;//p3 led GPIO40
+	val|=0x01<<6;//p2 led GPIo41
+	val|=0x01<<4;//p1 led GPIo42
+	val|=0x01<<2;//p0 led Gpio43
+	val|=0x01<<0;//wled   GPIO44
+	RALINK_REG(RT2880_SYS_CNTL_BASE+0x64)=val;
+	//ctrl0,ctrl1
+	RALINK_REG(0xb0000600)=0xffffffff;
+	RALINK_REG(0xb0000604)=0xffffffff;
+	RALINK_REG(0xb0000604)&=~0x01<<6;
+
+	udelay(600000);
+
+	for(i=0;i<2;i++)
+	{
+		printf("\nall led off GPIO high\n");
+		RALINK_REG(0xb0000620)=0xffffffff;
+		RALINK_REG(0xb0000624)=0xffffffff;
+		udelay(1000000);
+
+		printf("\nall led on GPIO low\n");
+		RALINK_REG(0xb0000620)=0x0;
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(400000);
+
+		//==========
+		printf("\nall led off GPIO high\n");
+		RALINK_REG(0xb0000620)=0xffffffff;
+		RALINK_REG(0xb0000624)=0xffffffff;
+		udelay(1000000);
+
+		printf("\nall led on GPIO low\n");
+		RALINK_REG(0xb0000620)=0x0;
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(300000);
+
+		//G11 G3 G2 G17 16 15 G46 G45 G6 G1 G0
+	  	RALINK_REG(0xb0000620)=0x800;		//G11
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000620)=0x8;		//G3
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  	RALINK_REG(0xb0000620)=0x4;		//G2
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+		//==
+		RALINK_REG(0xb0000620)=0x20000;		//G17
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  	RALINK_REG(0xb0000620)=0x10000;		//G16
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  	RALINK_REG(0xb0000620)=0x8000;		//G15
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+		//==
+
+		RALINK_REG(0xb0000624)=0x4000; 		//G46
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000624)=0x2000;		//G45
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000620)=0x40;		//G6
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  	RALINK_REG(0xb0000620)=0x2;		//G1
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(100000);
+
+		RALINK_REG(0xb0000620)=0x1;		//G0
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+		//====================
+		//G5 G4 G19 G18 G12 13
+
+		RALINK_REG(0xb0000620)=0x20;		//G5
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  	RALINK_REG(0xb0000620)=0x10;		//G4
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000620)=0x80000;		//G19
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  	RALINK_REG(0xb0000620)=0x40000;		//G18
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+		#if 1 //Uart
+		RALINK_REG(0xb0000620)=0x1000;		//G12
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(300000);
+
+	  	RALINK_REG(0xb0000620)=0x2000;		//G13
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+		#endif
+
+	}
+
+	RALINK_REG(RT2880_SYS_CNTL_BASE+0x3c)=agpio_cfg;
+	RALINK_REG(RT2880_SYS_CNTL_BASE+0x60)=gpio1_mode;
+	RALINK_REG(RT2880_SYS_CNTL_BASE+0x64)=gpio2_mode;
+	RALINK_REG(0xb0000600)=gpio_ctrl0;
+	RALINK_REG(0xb0000604)=gpio_ctrl1;
+	RALINK_REG(0xb0000620)=gpio_dat0;
+	RALINK_REG(0xb0000624)=gpio_dat1;
+}
+//------
+
+void gpio_test_omega2s( void )
 {
 	u32 agpio_cfg,gpio1_mode,gpio2_mode,val;
 	u32 gpio_ctrl0,gpio_ctrl1,gpio_dat0,gpio_dat1;
@@ -3117,8 +3300,18 @@ void gpio_test( void )
 		RALINK_REG(0xb0000624)=0x0;
 		udelay(300000);
 
-		//G11 G3 G2 G17 16 15 G46 G45 G6 G1 G0
-	  RALINK_REG(0xb0000620)=0x800;		//G11
+		//===================start========================
+		RALINK_REG(0xb0000620)=0x1;		//G0
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  	RALINK_REG(0xb0000620)=0x2;		//G1
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(100000);
+
+	 	RALINK_REG(0xb0000620)=0x4;		//G2
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
@@ -3128,35 +3321,14 @@ void gpio_test( void )
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
 
-	  RALINK_REG(0xb0000620)=0x4;		//G2
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-//==
-		RALINK_REG(0xb0000620)=0x20000;		//G17
+	  	RALINK_REG(0xb0000620)=0x10;		//G4
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
 
-	  RALINK_REG(0xb0000620)=0x10000;		//G16
+		RALINK_REG(0xb0000620)=0x20;		//G5
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-	  RALINK_REG(0xb0000620)=0x8000;		//G15
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-//==
-
-		RALINK_REG(0xb0000624)=0x4000; //G46
-		udelay(300000);
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000624)=0x2000;//G45
-		udelay(300000);
-		RALINK_REG(0xb0000624)=0x0;
 		udelay(200000);
 
 		RALINK_REG(0xb0000620)=0x40;		//G6
@@ -3164,24 +3336,45 @@ void gpio_test( void )
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
 
-	  RALINK_REG(0xb0000620)=0x2;		//G1
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(100000);
-
-		RALINK_REG(0xb0000620)=0x1;		//G0
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-		//====================
-		//G5 G4 G19 G18 G12 13
-
-		RALINK_REG(0xb0000620)=0x20;		//G5
+	    	RALINK_REG(0xb0000620)=0x800;		//G11
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
 
-	  RALINK_REG(0xb0000620)=0x10;		//G4
+		#if 0 //use for uart0
+		RALINK_REG(0xb0000620)=0x1000;		//G12
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(300000);
+
+	  	RALINK_REG(0xb0000620)=0x2000;		//G13
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+		#endif
+
+		//-------------
+	  	RALINK_REG(0xb0000620)=0x4000;		//G14
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  	RALINK_REG(0xb0000620)=0x8000;		//G15
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  	RALINK_REG(0xb0000620)=0x10000;		//G16
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000620)=0x20000;		//G17
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+	  	RALINK_REG(0xb0000620)=0x40000;		//G18
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
@@ -3191,23 +3384,115 @@ void gpio_test( void )
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
 
-	  RALINK_REG(0xb0000620)=0x40000;		//G18
+		RALINK_REG(0xb0000620)=0x100000;	//G20
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
 
-		#if 1
-		RALINK_REG(0xb0000620)=0x1000;		//G12
+		RALINK_REG(0xb0000620)=0x200000;	//G21
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
-		udelay(300000);
+		udelay(200000);
 
-	  RALINK_REG(0xb0000620)=0x2000;		//G13
+		RALINK_REG(0xb0000620)=0x400000;	//G22  G22~29 is TF card pin
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000620)=0x800000;	//G23
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000620)=0x1000000;	//G24
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000620)=0x2000000;	//G25
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000620)=0x4000000;	//G26
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000620)=0x8000000;	//G27
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000620)=0x10000000;	//G28
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000620)=0x20000000;	//G29
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+
+		//----------------
+		RALINK_REG(0xb0000624)=0x10;		//G36
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000624)=0x20;		//G37
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(200000);
+		
+		#if 0 //use for button
+		RALINK_REG(0xb0000624)=0x40;		//G38
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
 		udelay(200000);
 		#endif
 
+		RALINK_REG(0xb0000624)=0x80;		//G39
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000624)=0x100;		//G40
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000624)=0x200;		//G41
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000624)=0x400;		//G42
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000624)=0x800;		//G43
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000624)=0x1000;		//G44
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000624)=0x2000;		//G45
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(200000);
+
+		RALINK_REG(0xb0000624)=0x4000; 		//G46
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(200000);
+
+		//===================end========================
 	}
 	#endif
 
