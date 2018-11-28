@@ -2988,9 +2988,12 @@ void disable_pcie(void)
 	RALINK_REG(RT2880_CLKCFG1_REG) = val;
 #endif
 }
+
 //added by mango 20160120
 //wled_n GPIO44 WLAN_AN_MODE 2b01
 //WDT GPIO38 WDT_MODE 1b1
+//modified by Onion 20181128
+//GPIO43 P0_LED_AN_MODE 2b01 - GPIO (not ephy activity LED)
 void gpio_init(void)
 {
 	u32 val;
@@ -3444,7 +3447,7 @@ void gpio_test_omega2s( void )
 		udelay(300000);
 		RALINK_REG(0xb0000624)=0x0;
 		udelay(200000);
-		
+
 		#if 0 //use for button
 		RALINK_REG(0xb0000624)=0x40;		//G38
 		udelay(300000);
