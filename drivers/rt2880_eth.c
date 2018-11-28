@@ -2132,8 +2132,8 @@ void rt305x_esw_init(void)
 	}
 #elif defined (MT7628_ASIC_BOARD)
 /*TODO: Init MT7628 ASIC PHY HERE*/
-	i = RALINK_REG(RT2880_AGPIOCFG_REG);
-	i = i & ~(MT7628_EPHY_EN);
+	i = RALINK_REG(RT2880_AGPIOCFG_REG); // AGPIO_CFG register
+	i = i & ~(MT7628_EPHY_EN);   // setting EPHY_P0_DIS to disabled (0b1) and EPHY_GPIO_AIO_EN to Digital Pad (0b1)
 	RALINK_REG(RT2880_AGPIOCFG_REG) = i;
 
 	printf("Resetting MT7628 PHY.\n");
@@ -2143,9 +2143,11 @@ void rt305x_esw_init(void)
 	RALINK_REG(RT2880_RSTCTRL_REG) = i;
 	i = i & ~(RSTCTRL_EPHY_RST);
 	RALINK_REG(RT2880_RSTCTRL_REG) = i;
-	i = RALINK_REG(RALINK_SYSCTL_BASE + 0x64);
-	i &= 0xf003f003;
-	RALINK_REG(RALINK_SYSCTL_BASE + 0x64) = i;
+
+	i = RALINK_REG(RALINK_SYSCTL_BASE + 0x64); // GPIO2_MODE register
+	i &= 0xf003f003; // WLED_AN_MODE = reserved, P0_LED_AN_MODE = EPHY P0 LED  // lazar@onion.io: potentiall change this??
+	RALINK_REG(RALINK_SYSCTL_BASE + 0x64) = i;  // GPIO2_MODE register
+
       
 	udelay(5000);
 	mt7628_ephy_init();

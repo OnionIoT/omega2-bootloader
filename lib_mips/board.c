@@ -1421,7 +1421,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	Init_System_Mode(); /*  Get CPU rate */
 
 #if defined(MT7628_ASIC_BOARD)	/* Enable WLED share pin */
-	RALINK_REG(RALINK_SYSCTL_BASE+0x3C)|= (1<<8);
+  // lazar@onion.io: this might be changing ephy p1-p4 to analog momentarily
+	RALINK_REG(RALINK_SYSCTL_BASE+0x3C)|= (1<<8);  // AGPIO_CFG register
 	RALINK_REG(RALINK_SYSCTL_BASE+0x64)&= ~((0x3<<16)|(0x3));
 #endif
 #if defined(RT3052_ASIC_BOARD) || defined(RT3352_ASIC_BOARD) || defined(RT5350_ASIC_BOARD)
@@ -1969,7 +1970,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
     defined (RT3352_ASIC_BOARD) || defined (RT3352_FPGA_BOARD)  || \
     defined (RT5350_ASIC_BOARD) || defined (RT5350_FPGA_BOARD)  || \
     defined (MT7628_ASIC_BOARD) || defined (MT7628_FPGA_BOARD)
-	rt305x_esw_init();
+	rt305x_esw_init();   // lazar@onion.io: ethernet init
 #elif defined (RT6855_ASIC_BOARD) || defined (RT6855_FPGA_BOARD) || \
       defined (MT7620_ASIC_BOARD) || defined (MT7620_FPGA_BOARD)
 	rt_gsw_init();
@@ -2002,7 +2003,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	    s = getenv ("bootdelay");
 	    timer1 = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
 	}
-	gpio_init();
+	gpio_init(); // lazar@onion.io: gpio init
 
     // zh@onion.io
     // made message shorter
@@ -3000,7 +3001,7 @@ void gpio_init(void)
 	printf( "Initializing MT7688 GPIO system.\n" );
 	//set gpio2_mode 1:0=2b01 wled,p0,p1,p2,p3,p4 as gpio
 	val = 0x555;
-	RALINK_REG(RT2880_SYS_CNTL_BASE+0x64)=val;
+	RALINK_REG(RT2880_SYS_CNTL_BASE+0x64)=val; // GPIO2_MODE register
 	RALINK_REG(0xb0000644)=0x0f<<7;
 	//gpio44 output gpio_ctrl_1 bit3=1
 	val=RALINK_REG(RT2880_REG_PIODIR+0x04);
