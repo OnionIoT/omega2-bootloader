@@ -132,8 +132,8 @@ void led_off(void);
 
 // Added by zh@onion.io
 int detect_rst(void); // rename wps button to rst
-void gpio_test( void );
-void gpio_test_omega2s( void );
+void gpio_test(int vtest);
+void set_gpio_led(int vreg,int vgpio) ;//jeff
 
 static void Init_System_Mode(void)
 {
@@ -2076,12 +2076,12 @@ void board_init_r (gd_t *id, ulong dest_addr)
             // zh@onion.io
             // enable gpio test option
             case 't':
-                gpio_test();
+                gpio_test(0);
                 break;
 
             // enable Omega2s gpio test option
             case 's':
-                gpio_test_omega2s();
+                gpio_test(1);
                 break;
 
 #ifdef ONION_TFTP_FLASH_SDRAM
@@ -3010,6 +3010,7 @@ void gpio_init(void)
 	//gpio38 input gpio_ctrl_1 bit5=0
 	val=RALINK_REG(RT2880_REG_PIODIR+0x04);
 	val&=~1<<6;
+
 	RALINK_REG(RT2880_REG_PIODIR+0x04)=val;
 
 
@@ -3058,8 +3059,7 @@ int detect_rst( void )
 
 }
 
-
-void gpio_test( void ) //Test Omega2 GPIO
+void gpio_test( int vtest ) //Test Omega2 GPIO
 {
 	u32 agpio_cfg,gpio1_mode,gpio2_mode,val;
 	u32 gpio_ctrl0,gpio_ctrl1,gpio_dat0,gpio_dat1;
@@ -3105,7 +3105,7 @@ void gpio_test( void ) //Test Omega2 GPIO
 
 	udelay(600000);
 
-	for(i=0;i<2;i++)
+	for(i=0;i<1;i++)
 	{
 		printf("\nall led off GPIO high\n");
 		RALINK_REG(0xb0000620)=0xffffffff;
@@ -3127,7 +3127,10 @@ void gpio_test( void ) //Test Omega2 GPIO
 		RALINK_REG(0xb0000620)=0x0;
 		RALINK_REG(0xb0000624)=0x0;
 		udelay(300000);
-
+		
+      		if (vtest == 0)
+		{
+		//========Test Omega2==start========
 		//G11 G3 G2 G17 16 15 G46 G45 G6 G1 G0
 	  	RALINK_REG(0xb0000620)=0x800;		//G11
 		udelay(300000);
@@ -3184,7 +3187,7 @@ void gpio_test( void ) //Test Omega2 GPIO
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
-		//====================
+		
 		//G5 G4 G19 G18 G12 13
 
 		RALINK_REG(0xb0000620)=0x20;		//G5
@@ -3207,7 +3210,7 @@ void gpio_test( void ) //Test Omega2 GPIO
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
 
-		#if 1 //Uart
+		#if 0 //Uart0
 		RALINK_REG(0xb0000620)=0x1000;		//G12
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
@@ -3218,89 +3221,11 @@ void gpio_test( void ) //Test Omega2 GPIO
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
 		#endif
-
-	}
-
-	RALINK_REG(RT2880_SYS_CNTL_BASE+0x3c)=agpio_cfg;
-	RALINK_REG(RT2880_SYS_CNTL_BASE+0x60)=gpio1_mode;
-	RALINK_REG(RT2880_SYS_CNTL_BASE+0x64)=gpio2_mode;
-	RALINK_REG(0xb0000600)=gpio_ctrl0;
-	RALINK_REG(0xb0000604)=gpio_ctrl1;
-	RALINK_REG(0xb0000620)=gpio_dat0;
-	RALINK_REG(0xb0000624)=gpio_dat1;
-}
-//------
-
-void gpio_test_omega2s( void )
-{
-	u32 agpio_cfg,gpio1_mode,gpio2_mode,val;
-	u32 gpio_ctrl0,gpio_ctrl1,gpio_dat0,gpio_dat1;
-	u8 i=0;
-	agpio_cfg = RALINK_REG(RT2880_SYS_CNTL_BASE+0x3c);
-	gpio1_mode= RALINK_REG(RT2880_SYS_CNTL_BASE+0x60);
-	gpio2_mode= RALINK_REG(RT2880_SYS_CNTL_BASE+0x64);
-	gpio_ctrl0= RALINK_REG(0xb0000600);
-	gpio_ctrl1= RALINK_REG(0xb0000604);
-	gpio_dat0 = RALINK_REG(0xb0000620);
-	gpio_dat1 = RALINK_REG(0xb0000624);
-	//agpio
-	val=0;
-	val|=0x0f<<17;//ephy p1-p4 selection digital PAD
-	val|=0x1f;//refclk,i2s digital PAD #GPIO37 GPIO0~3
-	RALINK_REG(RT2880_SYS_CNTL_BASE+0x3c)=val;
-	//gpio1_mode
-	val=0;
-	val|=0x05<<28;//pwm0,pwm1 #GPIO18 19
-	val|=0x05<<24;//uart1,uart2 #GPIO45 46,GPIO20 21
-	val|=0x01<<20;//i2c_mode #GPIO4 5
-	val|=0x01<<18;//refclk   #GPIO37
-	val|=0x01<<14;//wdt_mode #GPIO38
-	//val|=0x01<<10;//sd_mode  #GPIO22~29
-	val|=0x01<<8;//uart0 GPIO12 13
-	val|=0x01<<6;//i2s GPIO0~3
-	val|=0x01<<4;//cs1 GPIO6
-	val|=0x01<<2;//spis GPIO14~17
-	RALINK_REG(RT2880_SYS_CNTL_BASE+0x60)=val;
-	//gpio2_mode
-	val=0;
-	val|=0x01<<10;//p4led GPIO39
-	val|=0x01<<8;//p3 led GPIO40
-	val|=0x01<<6;//p2 led GPIo41
-	val|=0x01<<4;//p1 led GPIo42
-	val|=0x01<<2;//p0 led Gpio43
-	val|=0x01<<0;//wled   GPIO44
-	RALINK_REG(RT2880_SYS_CNTL_BASE+0x64)=val;
-	//ctrl0,ctrl1
-	RALINK_REG(0xb0000600)=0xffffffff;
-	RALINK_REG(0xb0000604)=0xffffffff;
-	RALINK_REG(0xb0000604)&=~0x01<<6;
-
-	udelay(600000);
-	#if 1
-	for(i=0;i<2;i++)
-	{
-		printf("\nall led off GPIO high\n");
-		RALINK_REG(0xb0000620)=0xffffffff;
-		RALINK_REG(0xb0000624)=0xffffffff;
-		udelay(1000000);
-
-		printf("\nall led on GPIO low\n");
-		RALINK_REG(0xb0000620)=0x0;
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(400000);
-
-		//==========
-		printf("\nall led off GPIO high\n");
-		RALINK_REG(0xb0000620)=0xffffffff;
-		RALINK_REG(0xb0000624)=0xffffffff;
-		udelay(1000000);
-
-		printf("\nall led on GPIO low\n");
-		RALINK_REG(0xb0000620)=0x0;
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(300000);
-
-		//===================start========================
+		//========Test Omega2==end========
+		}
+		else if(vtest == 1)
+		{
+		//=========Test Omega2S===start===		
 		RALINK_REG(0xb0000620)=0x1;		//G0
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
@@ -3320,7 +3245,7 @@ void gpio_test_omega2s( void )
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
-
+		
 	  	RALINK_REG(0xb0000620)=0x10;		//G4
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
@@ -3340,8 +3265,9 @@ void gpio_test_omega2s( void )
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
+		
 
-		#if 0 //use for uart0
+		#if 0 //uart0
 		RALINK_REG(0xb0000620)=0x1000;		//G12
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
@@ -3373,7 +3299,7 @@ void gpio_test_omega2s( void )
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
-
+		
 	  	RALINK_REG(0xb0000620)=0x40000;		//G18
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
@@ -3393,8 +3319,9 @@ void gpio_test_omega2s( void )
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x400000;	//G22  G22~29 is TF card pin
+		
+		#if 0
+		RALINK_REG(0xb0000620)=0x400000;	//G22  G22~29 is SD card pin
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
@@ -3433,6 +3360,7 @@ void gpio_test_omega2s( void )
 		udelay(300000);
 		RALINK_REG(0xb0000620)=0x0;
 		udelay(200000);
+		#endif 
 
 		//----------------
 		RALINK_REG(0xb0000624)=0x10;		//G36
@@ -3491,11 +3419,10 @@ void gpio_test_omega2s( void )
 		udelay(300000);
 		RALINK_REG(0xb0000624)=0x0;
 		udelay(200000);
-
-		//===================end========================
+		
+		//=========Test Omega2S===end===
+		}
 	}
-	#endif
-
 
 	RALINK_REG(RT2880_SYS_CNTL_BASE+0x3c)=agpio_cfg;
 	RALINK_REG(RT2880_SYS_CNTL_BASE+0x60)=gpio1_mode;
@@ -3505,3 +3432,4 @@ void gpio_test_omega2s( void )
 	RALINK_REG(0xb0000620)=gpio_dat0;
 	RALINK_REG(0xb0000624)=gpio_dat1;
 }
+
