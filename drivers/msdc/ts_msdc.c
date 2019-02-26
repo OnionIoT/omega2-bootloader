@@ -1870,6 +1870,7 @@ int ralink_msdc_command(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     MSDC_CLR_BIT32(RALINK_SYSCTL_BASE+0x60, 0x1 << 18);
 #elif defined (MT7628_FPGA_BOARD) || defined (MT7628_ASIC_BOARD)
     MSDC_SET_BIT32(0xb000003c, 0x1e << 16); // TODO: maybe omitted when RAether already toggle AGPIO_CFG
+    // setting EPHY_P0_DIS to enabled (0b0) and EPHY_GPIO_AIO_EN to Digital Pad (0b1)
     MSDC_CLR_BIT32(RALINK_SYSCTL_BASE+0x60, 0x3 << 10);
 #if defined (EMMC_8BIT)
     MSDC_SET_BIT32(RALINK_SYSCTL_BASE+0x60, 0x3 << 30);
