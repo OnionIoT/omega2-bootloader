@@ -2133,7 +2133,10 @@ void rt305x_esw_init(void)
 #elif defined (MT7628_ASIC_BOARD)
 /*TODO: Init MT7628 ASIC PHY HERE*/
 	i = RALINK_REG(RT2880_AGPIOCFG_REG); // AGPIO_CFG register
-	i = i & ~(MT7628_EPHY_EN);   // setting EPHY_P0_DIS to disabled (0b1) and EPHY_GPIO_AIO_EN to Digital Pad (0b1)
+	// onion.io: fix to ensure EPHY P1-P4 pins are always set to Digital Pads (no random voltages on these pins during boot)
+    //i = i & ~(MT7628_EPHY_EN);   // setting EPHY_P0_DIS to disabled (0b1) and EPHY_GPIO_AIO_EN to Digital Pad (0b1)
+    // only enable PHY 0
+    i = i | (0x1e << 16);
 	RALINK_REG(RT2880_AGPIOCFG_REG) = i;
 
 	printf("Resetting MT7628 PHY.\n");
