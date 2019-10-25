@@ -3102,10 +3102,11 @@ void gpio_test( int vtest ) //Test Omega2 GPIO
 	val|=0x01<<2;//p0 led Gpio43
 	val|=0x01<<0;//wled   GPIO44
 	RALINK_REG(RT2880_SYS_CNTL_BASE+0x64)=val;
-	//ctrl0,ctrl1
+	// set gpio ctrl0,ctrl1 reg - all gpios output
 	RALINK_REG(0xb0000600)=0xffffffff;
 	RALINK_REG(0xb0000604)=0xffffffff;
-	RALINK_REG(0xb0000604)&=~0x01<<6;
+	// switch GPIO37 to input
+	RALINK_REG(0xb0000604)&=~(0x01<<6);
 
 	udelay(600000);
 

@@ -2133,12 +2133,11 @@ void rt305x_esw_init(void)
 #elif defined (MT7628_ASIC_BOARD)
 /*TODO: Init MT7628 ASIC PHY HERE*/
 	i = RALINK_REG(RT2880_AGPIOCFG_REG); // AGPIO_CFG register
-	// onion.io: fix to ensure EPHY P1-P4 pins are always set to Digital Pads (no random voltages on these pins during boot)
-	//#define MT7628_EPHY_EN	        (0x1f<<16)
+	// onion.io: fix to ensure EPHY P0 is enabled for ethernet & EPHY P1-P4 pins are always set to Digital Pads (no random voltages on these pins during boot)
+	#define MT7628_EPHY_EN	        (0x1f<<16)
     i = i & ~(MT7628_EPHY_EN);   // setting EPHY_P0_DIS to disabled (0b1) and EPHY_GPIO_AIO_EN to Digital Pad (0b1)	
     // only enable PHY 0
-    // lazar@onion.io: 2019-04-23 - switching back to previous setting, the below code caused all ethernet ports to be disabled, resulting in web recovery mode no longer working
-    //i = i | (0x1f << 16);
+    i = i | (0x1e << 16);
 	RALINK_REG(RT2880_AGPIOCFG_REG) = i;
 
 	printf("Resetting MT7628 PHY.\n");
@@ -2150,7 +2149,8 @@ void rt305x_esw_init(void)
 	RALINK_REG(RT2880_RSTCTRL_REG) = i;
 
 	i = RALINK_REG(RALINK_SYSCTL_BASE + 0x64); // GPIO2_MODE register
-	i &= 0xf003f003; // WLED_AN_MODE = reserved, P0_LED_AN_MODE = EPHY P0 LED  // lazar@onion.io: potentiall change this??
+	// GPIO2_MODE POR = 0x05550555 - all LED pins set to GPIO mode
+	i &= 0xf557f557; // keep all LED pins set to GPIO mode
 	RALINK_REG(RALINK_SYSCTL_BASE + 0x64) = i;  // GPIO2_MODE register
 
       
