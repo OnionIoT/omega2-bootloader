@@ -2,6 +2,10 @@
 
 Log of changes made to the Onion Omega2 Bootloader
 
+* 2019-11-11
+    * Added bootloader menu option to write device MAC Address to factory partition
+        * Will write input MAC addr for ra0 interface, input + 1 for eth0, and input + 2 for apcli0
+        * ![](./menu-write-mac-addr.jpg)
 * 2019-10-17
     * GPIO2_MODE register now unchanged during init - all LED pins being left to default GPIO mode
       * Resolves issue where GPIOs 39-42 flap right after boot

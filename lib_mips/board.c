@@ -133,6 +133,7 @@ void led_off(void);
 // Added by zh@onion.io
 int detect_rst(void); // rename wps button to rst
 void gpio_test(int vtest);
+void write_macAddress(void); // Added by jeffzhou@onion.io
 void set_gpio_led(int vreg,int vgpio) ;//jeff
 
 static void Init_System_Mode(void)
@@ -2085,6 +2086,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
                 gpio_test(1);
                 break;
 
+            // enable Omega2 write mac address option
+            case 'm':
+                write_macAddress();
+                break;
+
 #ifdef ONION_TFTP_FLASH_SDRAM
             case '3':
                 printf("   \n%d: System Load Linux to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
@@ -3436,5 +3442,71 @@ void gpio_test( int vtest ) //Test Omega2 GPIO
 	RALINK_REG(0xb0000604)=gpio_ctrl1;
 	RALINK_REG(0xb0000620)=gpio_dat0;
 	RALINK_REG(0xb0000624)=gpio_dat1;
+}
+
+ // Added by jeffzhou@onion.io
+void StringToHex(char *str, unsigned char *strhex)
+{
+	uint8_t i,cnt=0;
+	char *p = str;             
+	uint8_t len = strlen(str); 
+	
+	while(*p != '\0') {        
+		for (i = 0; i < len; i ++)  
+		{
+			if ((*p >= '0') && (*p <= '9')) 
+				strhex[cnt] = *p - '0' + 0x0;
+			
+			if ((*p >= 'A') && (*p <= 'Z')) 
+				strhex[cnt] = *p - 'A' + 0xA;
+			
+			if ((*p >= 'a') && (*p <= 'z')) 
+				strhex[cnt] = *p - 'a' + 0xA;
+
+			p ++;    
+			cnt ++;  
+		}
+	}
+}
+
+void write_macAddress(void)
+{
+	char *inputStr = NULL;
+  	unsigned char outputHex[16],macHex[6];
+	int i;
+
+	printf("\nInput mac ");
+
+	input_value(inputStr);
+
+	StringToHex(inputStr,outputHex);
+	
+	for ( i = 0; i < 6; i ++) 
+	{
+ 	  int t1 = i<<1;
+	  macHex[i] = (outputHex[t1]<<4)+outputHex[t1+1];
+	}
+
+	printf("\nwrite wifi mac address = %02X-%02X-%02X-%02X-%02X-%02X \n",
+			macHex[0],macHex[1],macHex[2],macHex[3],macHex[4],macHex[5]);
+
+	if((macHex[0] == 0x40)&&(macHex[1] == 0xA3))
+	{
+		raspi_erase_write((char *)macHex, CFG_FACTORY_ADDR - CFG_FLASH_BASE + 0x04, 6);
+
+		// increment by 1 and write to location for eth0 mac addr
+		macHex[5]=macHex[5] + 1;
+		raspi_erase_write((char *)macHex, CFG_FACTORY_ADDR - CFG_FLASH_BASE + 0x28, 6);
+
+		// increment by 1 more and write to location for apcli0 mac addr
+		macHex[5]=macHex[5] + 1;
+		raspi_erase_write((char *)macHex, CFG_FACTORY_ADDR - CFG_FLASH_BASE + 0x2E, 6);
+		printf("\nwrite mac address ok\n");
+        }
+	else
+	{
+		printf("\nwrite mac address error\n");
+	}
+
 }
 
