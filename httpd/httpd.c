@@ -25,7 +25,7 @@
 #define is_digit(c)				((c) >= '0' && (c) <= '9')
 
 // debug
-//#define DEBUG_UIP
+#define DEBUG_UIP
 
 // html files
 extern const struct fsdata_file file_index_html;
@@ -249,6 +249,9 @@ void httpd_appcall(void){
 
 			// closed connection
 			if(uip_closed()){
+#ifdef DEBUG_UIP
+				printf("uip_closed\n");
+#endif
 				httpd_state_reset();
 				uip_close();
 				return;
@@ -256,6 +259,13 @@ void httpd_appcall(void){
 
 			// aborted connection or time out occured
 			if(uip_aborted() || uip_timedout()){
+#ifdef DEBUG_UIP
+				if(uip_aborted()) {
+					printf("uip_aborted\n");
+				} else if (uip_timedout()) {
+					printf("uip_timedout\n");
+				}
+#endif
 				httpd_state_reset();
 				uip_abort();
 				return;
@@ -263,7 +273,13 @@ void httpd_appcall(void){
 
 			// if we are pooled
 			if(uip_poll()){
+#ifdef DEBUG_UIP
+				printf("uip_poll\n");
+#endif
 				if(hs->count++ >= 100){
+#ifdef DEBUG_UIP
+					printf("hs->count >= 100, aborting!\n");
+#endif
 					httpd_state_reset();
 					uip_abort();
 				}
