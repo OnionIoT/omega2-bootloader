@@ -1,6 +1,0 @@
-*.o
-*.a
-.depend
-*.map
-*.bin
-*.srec
