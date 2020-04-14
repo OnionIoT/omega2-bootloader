@@ -33,6 +33,7 @@
 
 # Build tree
 /build-*
+/compiler
 
 #
 # Top-level generic files
