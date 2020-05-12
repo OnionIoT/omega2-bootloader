@@ -2,6 +2,8 @@
 
 Log of changes made to the Onion Omega2 Bootloader
 
+* 2020-05-12
+    * Fixed issue with flashing new firmware from USB by reducing bootloader binary size
 * 2019-11-11
     * Added bootloader menu option to write device MAC Address to factory partition
         * Will write input MAC addr for ra0 interface, input + 1 for eth0, and input + 2 for apcli0
