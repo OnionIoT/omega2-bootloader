@@ -5,7 +5,15 @@
 ```
 sh setup_env.sh
 ```
-part of the setup is unpacking the MTK built tool. these tools reqire 32bit gcc libs.
+
+Part of the setup is unpacking the MTK built tool. These tools require 32bit gcc libs.
+
+## MORE INFO
+
+* Version changelog: [OMEGA2-CHANGELOG.md](./OMEGA2-CHANGELOG.md)
+* Repository of Released Bootloader Binaries: http://repo.onioniot.com/omega2/bootloader/
+* Instructions on flashing bootloader binary to Omega2 device: http://docs.onion.io/omega2-docs/Web-Recovery-flash-bootloader.html
+
 
 ## MEMORY MAPS AND BOARD CONFIGURATION
 SoC spaicifc configuration are located in `/include/configs/rt2880.h`.
