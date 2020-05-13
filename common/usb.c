@@ -65,7 +65,7 @@
 #endif
 
 //youlian@onion.io usb debug on?
-#define USB_DEBUG
+//#define USB_DEBUG
 
 #ifdef	USB_DEBUG
 #define	USB_PRINTF(fmt,args...)	printf (fmt ,##args)

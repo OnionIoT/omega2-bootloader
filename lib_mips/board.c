@@ -3069,6 +3069,24 @@ int detect_rst( void )
 
 }
 
+void set_gpio_led(int vreg,int vgpio)  //jeff add for gpio test at 20190125
+{
+	if(vreg == 0)
+	{
+		RALINK_REG(0xb0000620) = vgpio;
+		udelay(300000);
+		RALINK_REG(0xb0000620)=0x0;
+		udelay(200000);
+	}
+	else if(vreg == 1)
+	{
+		RALINK_REG(0xb0000624) = vgpio;
+		udelay(300000);
+		RALINK_REG(0xb0000624)=0x0;
+		udelay(200000);
+	}
+}
+
 void gpio_test( int vtest ) //Test Omega2 GPIO
 {
 	u32 agpio_cfg,gpio1_mode,gpio2_mode,val;
@@ -3142,296 +3160,65 @@ void gpio_test( int vtest ) //Test Omega2 GPIO
       		if (vtest == 0)
 		{
 		//========Test Omega2==start========
-		//G11 G3 G2 G17 16 15 G46 G45 G6 G1 G0
-	  	RALINK_REG(0xb0000620)=0x800;		//G11
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x8;		//G3
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-	  	RALINK_REG(0xb0000620)=0x4;		//G2
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-		//==
-		RALINK_REG(0xb0000620)=0x20000;		//G17
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-	  	RALINK_REG(0xb0000620)=0x10000;		//G16
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-	  	RALINK_REG(0xb0000620)=0x8000;		//G15
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-		//==
-
-		RALINK_REG(0xb0000624)=0x4000; 		//G46
-		udelay(300000);
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000624)=0x2000;		//G45
-		udelay(300000);
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x40;		//G6
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-	  	RALINK_REG(0xb0000620)=0x2;		//G1
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(100000);
-
-		RALINK_REG(0xb0000620)=0x1;		//G0
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-		
-		//G5 G4 G19 G18 G12 13
-
-		RALINK_REG(0xb0000620)=0x20;		//G5
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-	  	RALINK_REG(0xb0000620)=0x10;		//G4
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x80000;		//G19
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-	  	RALINK_REG(0xb0000620)=0x40000;		//G18
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		#if 0 //Uart0
-		RALINK_REG(0xb0000620)=0x1000;		//G12
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(300000);
-
-	  	RALINK_REG(0xb0000620)=0x2000;		//G13
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-		#endif
+		//LED Order: G11 G3 G2 G17 16 15 G46 G45 G6 G1 G0 ,G5 G4 G19 G18
+		set_gpio_led(0,0x800);   //G11
+		set_gpio_led(0,0x8);   //G03
+		set_gpio_led(0,0x4);   //G02
+		set_gpio_led(0,0x20000);   //G17
+		set_gpio_led(0,0x10000);   //G16
+		set_gpio_led(0,0x8000);   //G15
+		set_gpio_led(1,0x4000);   //G46
+		set_gpio_led(1,0x2000);   //G45
+		set_gpio_led(0,0x40);   //G06
+		set_gpio_led(0,0x2);  //G01
+		set_gpio_led(0,0x1); //G0
+		set_gpio_led(0,0x20);   //G05
+		set_gpio_led(0,0x10);   //G04
+		set_gpio_led(0,0x80000);   //G19
+		set_gpio_led(0,0x40000);   //G18
 		//========Test Omega2==end========
 		}
 		else if(vtest == 1)
 		{
-		//=========Test Omega2S===start===		
-		RALINK_REG(0xb0000620)=0x1;		//G0
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-	  	RALINK_REG(0xb0000620)=0x2;		//G1
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(100000);
-
-	 	RALINK_REG(0xb0000620)=0x4;		//G2
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x8;		//G3
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-		
-	  	RALINK_REG(0xb0000620)=0x10;		//G4
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x20;		//G5
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x40;		//G6
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-	    	RALINK_REG(0xb0000620)=0x800;		//G11
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-		
-
-		#if 0 //uart0
-		RALINK_REG(0xb0000620)=0x1000;		//G12
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(300000);
-
-	  	RALINK_REG(0xb0000620)=0x2000;		//G13
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-		#endif
-
-		//-------------
-	  	RALINK_REG(0xb0000620)=0x4000;		//G14
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-	  	RALINK_REG(0xb0000620)=0x8000;		//G15
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-	  	RALINK_REG(0xb0000620)=0x10000;		//G16
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x20000;		//G17
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-		
-	  	RALINK_REG(0xb0000620)=0x40000;		//G18
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x80000;		//G19
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x100000;	//G20
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x200000;	//G21
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-		
+		//=========Test Omega2S===start===
+	        //LED Order:G0~G46
+		set_gpio_led(0,0x1); //G0
+		set_gpio_led(0,0x2);  //G01
+		set_gpio_led(0,0x4);   //G02
+		set_gpio_led(0,0x8);   //G03
+		set_gpio_led(0,0x10);   //G04
+		set_gpio_led(0,0x20);   //G05
+		set_gpio_led(0,0x40);   //G06
+		set_gpio_led(0,0x800);   //G11
+		set_gpio_led(0,0x4000);   //G14
+		set_gpio_led(0,0x8000);   //G15
+		set_gpio_led(0,0x10000);   //G16
+		set_gpio_led(0,0x20000);   //G17
+		set_gpio_led(0,0x40000);   //G18
+		set_gpio_led(0,0x80000);   //G19
+		set_gpio_led(0,0x100000);   //G20
+		set_gpio_led(0,0x200000);   //G21
 		#if 0
-		RALINK_REG(0xb0000620)=0x400000;	//G22  G22~29 is SD card pin
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x800000;	//G23
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x1000000;	//G24
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x2000000;	//G25
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x4000000;	//G26
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x8000000;	//G27
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x10000000;	//G28
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000620)=0x20000000;	//G29
-		udelay(300000);
-		RALINK_REG(0xb0000620)=0x0;
-		udelay(200000);
+		set_gpio_led(0,0x400000); //G22 G22~29 is SD card pin
+		set_gpio_led(0,0x800000); //G23
+		set_gpio_led(0,0x1000000); //G24
+		set_gpio_led(0,0x2000000); //G25
+		set_gpio_led(0,0x4000000); //G26
+		set_gpio_led(0,0x8000000); //G27
+		set_gpio_led(0,0x10000000); //G28
+		set_gpio_led(0,0x20000000); //G29
 		#endif 
-
-		//----------------
-		RALINK_REG(0xb0000624)=0x10;		//G36
-		udelay(300000);
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000624)=0x20;		//G37
-		udelay(300000);
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(200000);
-
-		#if 0 //use for button
-		RALINK_REG(0xb0000624)=0x40;		//G38
-		udelay(300000);
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(200000);
-		#endif
-
-		RALINK_REG(0xb0000624)=0x80;		//G39
-		udelay(300000);
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000624)=0x100;		//G40
-		udelay(300000);
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000624)=0x200;		//G41
-		udelay(300000);
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000624)=0x400;		//G42
-		udelay(300000);
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000624)=0x800;		//G43
-		udelay(300000);
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000624)=0x1000;		//G44
-		udelay(300000);
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000624)=0x2000;		//G45
-		udelay(300000);
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(200000);
-
-		RALINK_REG(0xb0000624)=0x4000; 		//G46
-		udelay(300000);
-		RALINK_REG(0xb0000624)=0x0;
-		udelay(200000);
-		
-		//=========Test Omega2S===end===
+		set_gpio_led(1,0x10); //G36
+		set_gpio_led(1,0x20); //G37
+		set_gpio_led(1,0x40);   //G38
+		set_gpio_led(1,0x80);   //G39
+		set_gpio_led(1,0x100);   //G40
+		set_gpio_led(1,0x200);   //G41
+		set_gpio_led(1,0x400);   //G42
+		set_gpio_led(1,0x800);   //G43
+		set_gpio_led(1,0x1000);   //G44
+		set_gpio_led(1,0x2000);   //G45
+		set_gpio_led(1,0x4000);   //G46
 		}
 	}
 
