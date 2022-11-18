@@ -2,6 +2,8 @@
 
 Log of changes made to the Onion Omega2 Bootloader
 
+* 2022-11-18
+    * Updated write device MAC address command (from bootloader menu) to support new Onion MAC address range
 * 2020-05-12
     * Fixed issue with flashing new firmware from USB by reducing bootloader binary size
 * 2019-11-11

@@ -3277,7 +3277,10 @@ void write_macAddress(void)
 	printf("\nwrite wifi mac address = %02X-%02X-%02X-%02X-%02X-%02X \n",
 			macHex[0],macHex[1],macHex[2],macHex[3],macHex[4],macHex[5]);
 
-	if((macHex[0] == 0x40)&&(macHex[1] == 0xA3))
+	if(
+		((macHex[0] == 0x40) && (macHex[1] == 0xA3) && (macHex[2] == 0x6b) && (((macHex[3] & 0xf0)^0xc0) == 0x00)) ||
+		((macHex[0] == 0x88) && (macHex[1] == 0x1e) && (macHex[2] == 0x59))
+	)
 	{
 		raspi_erase_write((char *)macHex, CFG_FACTORY_ADDR - CFG_FLASH_BASE + 0x04, 6);
 
